@@ -3,5 +3,22 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "devCommand": "next dev",
-  "installCommand": "npm install --loglevel=error"
+  "installCommand": "npm install --loglevel=error",
+  "env": {
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyDImrt7lrSv0xXySl60zPLMBVFLy72iX2k",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "cinenova-23f33.firebaseapp.com",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "cinenova-23f33",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "cinenova-23f33.firebasestorage.app",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "870545534911",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "1:870545534911:web:6d1dd0816a4ca7fa797b0a",
+    "FIREBASE_API_KEY": "AIzaSyDImrt7lrSv0xXySl60zPLMBVFLy72iX2k",
+    "FIREBASE_AUTH_DOMAIN": "cinenova-23f33.firebaseapp.com",
+    "FIREBASE_PROJECT_ID": "cinenova-23f33",
+    "FIREBASE_STORAGE_BUCKET": "cinenova-23f33.firebasestorage.app",
+    "FIREBASE_MESSAGING_SENDER_ID": "870545534911",
+    "FIREBASE_APP_ID": "1:870545534911:web:6d1dd0816a4ca7fa797b0a",
+    "ADMIN_SECRET_CODE": "cinenova",
+    "ADMIN_USERNAME": "admin",
+    "ADMIN_PASSWORD": "admin123"
+  }
 }
