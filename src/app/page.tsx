@@ -55,14 +55,56 @@ function HomeContent() {
     dismissPreloader();
 
     fetch(`/api/movies?t=${Date.now()}`, { cache: "no-store" })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (data.success && Array.isArray(data.movies) && data.movies.length > 0) {
           setCachedMovies(data.movies);
           setMovies(data.movies);
         }
       })
-      .catch((err) => console.error("Error loading movies:", err))
+      .catch((err) => {
+        console.warn("API route error, falling back to direct Firestore REST:", err);
+        // Direct browser fallback to Firestore REST API (no serverless required)
+        fetch(
+          "https://firestore.googleapis.com/v1/projects/cinenova-23f33/databases/(default)/documents/movies?key=AIzaSyDImrt7lrSv0xXySl60zPLMBVFLy72iX2k",
+          { cache: "no-store" }
+        )
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.documents && Array.isArray(data.documents)) {
+              const parseVal = (v: any): any => {
+                if (!v) return null;
+                if ("stringValue" in v) return v.stringValue;
+                if ("integerValue" in v) return parseInt(v.integerValue, 10);
+                if ("doubleValue" in v) return parseFloat(v.doubleValue);
+                if ("booleanValue" in v) return v.booleanValue;
+                if ("arrayValue" in v) return (v.arrayValue.values || []).map(parseVal);
+                if ("mapValue" in v) {
+                  const f = v.mapValue.fields || {};
+                  const o: any = {};
+                  for (const k in f) o[k] = parseVal(f[k]);
+                  return o;
+                }
+                return null;
+              };
+              const parsed: Movie[] = data.documents.map((doc: any) => {
+                const id = doc.name.split("/").pop();
+                const fields = doc.fields || {};
+                const obj: any = { id };
+                for (const k in fields) obj[k] = parseVal(fields[k]);
+                return obj as Movie;
+              });
+              if (parsed.length > 0) {
+                setCachedMovies(parsed);
+                setMovies(parsed);
+              }
+            }
+          })
+          .catch((e) => console.error("Direct fallback failed:", e));
+      })
       .finally(() => {
         setLoading(false);
         dismissPreloader();
