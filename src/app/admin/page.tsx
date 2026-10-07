@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { dismissPreloader } from "@/lib/preloaderEvents";
+import { getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
+import initialMoviesJson from "@/data/initialMovies.json";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -23,7 +25,11 @@ export default function AdminPage() {
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
   // Dashboard state
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<Movie[]>(() => {
+    const cached = getCachedMovies();
+    if (cached && cached.length > 0) return cached;
+    return (initialMoviesJson as Movie[]) || [];
+  });
   const [loadingMovies, setLoadingMovies] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -47,11 +53,12 @@ export default function AdminPage() {
 
   const loadDashboardData = () => {
     setLoadingMovies(true);
-    fetch("/api/movies")
+    fetch(`/api/movies?t=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
-        if (data.success && data.movies) {
+        if (data.success && Array.isArray(data.movies) && data.movies.length > 0) {
           setMovies(data.movies);
+          setCachedMovies(data.movies);
         }
       })
       .catch((e) => console.error("Failed to load movies:", e))

@@ -1,7 +1,9 @@
 import { Movie } from "@/types/movie";
+import initialMoviesJson from "@/data/initialMovies.json";
 
-const MEMORY_CACHE = new Map<string, Movie>();
-let ALL_MOVIES_CACHE: Movie[] | null = null;
+const defaultMovies = (initialMoviesJson as Movie[]) || [];
+const MEMORY_CACHE = new Map<string, Movie>(defaultMovies.map((m) => [m.id, m]));
+let ALL_MOVIES_CACHE: Movie[] | null = defaultMovies.length > 0 ? defaultMovies : null;
 
 const STORAGE_KEY_ALL = "cinenova_cached_movies";
 const STORAGE_PREFIX_MOVIE = "cinenova_movie_";

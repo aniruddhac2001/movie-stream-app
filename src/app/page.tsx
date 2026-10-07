@@ -10,6 +10,7 @@ import { useVideo } from "@/context/VideoContext";
 import { Film, Flame } from "lucide-react";
 import { dismissPreloader } from "@/lib/preloaderEvents";
 import { getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
+import initialMoviesJson from "@/data/initialMovies.json";
 
 const GENRES = [
   "Action",
@@ -28,8 +29,15 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const { playVideo } = useVideo();
 
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [movies, setMovies] = useState<Movie[]>(() => {
+    const cached = getCachedMovies();
+    if (cached && cached.length > 0) return cached;
+    return (initialMoviesJson as Movie[]) || [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    const cached = getCachedMovies();
+    return !(cached && cached.length > 0) && !(initialMoviesJson && initialMoviesJson.length > 0);
+  });
   const [selectedGenre, setSelectedGenre] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("featured");
@@ -44,15 +52,12 @@ function HomeContent() {
   }, [genreParam, statusParam]);
 
   useEffect(() => {
-    const existing = getCachedMovies();
-    if (existing && existing.length > 0) {
-      setMovies(existing);
-      dismissPreloader();
-    }
+    dismissPreloader();
+
     fetch(`/api/movies?t=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.movies) {
+        if (data.success && Array.isArray(data.movies) && data.movies.length > 0) {
           setCachedMovies(data.movies);
           setMovies(data.movies);
         }
