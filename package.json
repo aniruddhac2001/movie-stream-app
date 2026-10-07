@@ -20,5 +20,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "@firebase/util": true,
+    "protobufjs@7.6.6": true,
+    "protobufjs": true,
+    "unrs-resolver@1.12.2": true,
+    "unrs-resolver": true
   }
 }
