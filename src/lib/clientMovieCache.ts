@@ -9,6 +9,7 @@ const STORAGE_KEY_ALL = "cinenova_cached_movies";
 const STORAGE_PREFIX_MOVIE = "cinenova_movie_";
 
 export function setCachedMovies(movies: Movie[]): void {
+  if (!Array.isArray(movies) || movies.length === 0) return;
   ALL_MOVIES_CACHE = movies;
   for (const m of movies) {
     if (m?.id) {
@@ -79,13 +80,15 @@ export function getCachedMovies(): Movie[] | null {
             if (m?.id) MEMORY_CACHE.set(m.id, m);
           }
           return parsed;
+        } else {
+          sessionStorage.removeItem(STORAGE_KEY_ALL);
         }
       }
     } catch {
       // ignore parse errors
     }
   }
-  return null;
+  return defaultMovies.length > 0 ? defaultMovies : null;
 }
 
 export function getCachedMovie(id: string): Movie | null {
