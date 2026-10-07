@@ -46,9 +46,10 @@ function HomeContent() {
   useEffect(() => {
     const existing = getCachedMovies();
     if (existing && existing.length > 0) {
+      setMovies(existing);
       dismissPreloader();
     }
-    fetch("/api/movies")
+    fetch(`/api/movies?t=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.movies) {

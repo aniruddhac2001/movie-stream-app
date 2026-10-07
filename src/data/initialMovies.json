@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "id": "movie-1791272200467-pexu5",
+    "cast": [],
+    "genre": [
+      "Comedy",
+      "Thriller"
+    ],
+    "rating": 7.2,
+    "synopsis": "The story follows two ordinary, unprepared best friends: Hardik (Kunal Khemu), a down-on-his-luck slacker, and Bhagirath/Bugs (Sparsh Shrivastava), a well-meaning hustler trying to help Hardik navigate a corporate job. Their chaotic lives take an absurd turn when they accidentally stumble upon or get roped into a high-stakes national security crisis involving a terrorist plot led by Abu Al-Sed.",
+    "screenshots": [
+      {
+        "filename": "Screenshot 1",
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h40m48s187.png"
+      },
+      {
+        "filename": "Screenshot 2",
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h42m39s534.png"
+      },
+      {
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h43m41s204.png",
+        "filename": "Screenshot 3"
+      },
+      {
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h44m48s813.png",
+        "filename": "Screenshot 4"
+      },
+      {
+        "filename": "Screenshot 5",
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h48m49s940.png"
+      },
+      {
+        "url": "https://catimages.org/images/2026/09/18/vlcsnap-2026-09-18-15h56m37s142.png",
+        "filename": "Screenshot 6"
+      }
+    ],
+    "trailerUrl": "https://youtu.be/meknZizkusk",
+    "bannerImage": [
+      {
+        "url": "https://cf-images.assettype.com/cinemaexpress%2F2026-08-20%2F7ll340m7%2Fvibe-poster.jpeg?w=480&auto=format%2Ccompress&fit=max"
+      }
+    ],
+    "fullMovieUrl": "",
+    "posterImage": [
+      {
+        "url": "https://stat4.bollywoodhungama.in/wp-content/uploads/2026/05/Vibe-poster-2026-306x393.jpeg"
+      }
+    ],
+    "hasFullMovie": true,
+    "downloadUrl": "https://hubcloud.ist/drive/pyri6vid7fkqxkn",
+    "featured": true,
+    "releaseDate": "2026-09-18",
+    "director": "",
+    "duration": "2h 26m",
+    "title": "VIBE",
+    "createdAt": "2026-10-07T10:57:45.311Z",
+    "updatedAt": "2026-10-07T10:57:45.311Z"
+  },
+  {
+    "id": "movie-1791372920984-aaab1",
+    "cast": [],
+    "genre": [
+      "Action",
+      "Thriller"
+    ],
+    "synopsis": "An ancient epic follows a young prince and princess whose marriage and subsequent exile mark the beginning of a legendary journey. Their story of love, duty and destiny sets the stage for greater challenges ahead.",
+    "screenshots": [],
+    "trailerUrl": "https://youtu.be/llLHwxkZ02k",
+    "bannerImage": [
+      {
+        "url": "https://th-i.thgim.com/public/entertainment/movies/fidkux/article70791353.ece/alternates/FREE_1200/Ramyana.jpg"
+      }
+    ],
+    "fullMovieUrl": "",
+    "posterImage": [
+      {
+        "url": "https://cdn.district.in/movies-assets/images/cinema/ramayan%20(1)-c62da330-ba6c-11f1-ba4e-5369a09dbee9.jpg?im=Resize,width=400"
+      }
+    ],
+    "downloadUrl": "",
+    "hasFullMovie": false,
+    "featured": false,
+    "releaseDate": "2026-11-05",
+    "duration": "3h 19m",
+    "director": "",
+    "crew": [
+      {
+        "name": "Nitish Tiwari",
+        "role": "Director",
+        "photoUrl": "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcRu2Jon_uwLl24Fq76nR4TXNr68vlapP1BS7ylNgivP6goqBSViz4A49CL23mzD7RzNKfFhVVv221BGxfs"
+      },
+      {
+        "role": "Producer",
+        "photoUrl": "https://in.bmscdn.com/iedb/artist/images/website/poster/large/namit-malhotra-2006010-1751454035.jpg",
+        "name": "Namit Malhotra"
+      }
+    ],
+    "createdAt": "2026-10-07T11:48:33.949Z",
+    "title": "RAMAYANA - PART 1",
+    "updatedAt": "2026-10-07T11:48:33.949Z"
+  }
+]

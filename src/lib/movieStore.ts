@@ -10,8 +10,10 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-// In-memory fallback cache (starts empty so no mock data is retained)
-let fallbackMovies: Movie[] = [];
+import initialMoviesJson from "@/data/initialMovies.json";
+
+// In-memory fallback cache seeded with initial movie data
+let fallbackMovies: Movie[] = (initialMoviesJson as Movie[]) || [];
 
 export async function getAllMovies(): Promise<{
   movies: Movie[];
