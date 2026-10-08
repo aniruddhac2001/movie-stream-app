@@ -203,7 +203,7 @@ function HomeContent() {
             </div>
             <h2
               style={{
-                fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
+                fontSize: "clamp(1.4rem, 2.2vw, 1.85rem)",
                 fontWeight: 800,
                 letterSpacing: "-0.02em",
               }}

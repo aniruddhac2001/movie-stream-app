@@ -169,7 +169,7 @@ export function HeroSection({ movies }: HeroSectionProps) {
           {/* Movie Title */}
           <h1
             style={{
-              fontSize: "clamp(1.8rem, 3.4vw, 2.5rem)",
+              fontSize: "clamp(1.5rem, 2.7vw, 2.1rem)",
               fontWeight: 800,
               lineHeight: 1.15,
               letterSpacing: "-0.01em",
