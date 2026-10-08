@@ -1223,12 +1223,6 @@ export default function AdminMovieEditPage({
             <span>{saving ? "Saving Movie..." : isNew ? "Create Movie" : "Update Movie"}</span>
           </button>
 
-          {!isNew && !isChanged && (
-            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontStyle: "italic" }}>
-              No changes detected
-            </span>
-          )}
-
           <Link href="/admin" className="btn-secondary" style={{ padding: "12px 24px" }}>
             Cancel
           </Link>
