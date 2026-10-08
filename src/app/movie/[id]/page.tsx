@@ -271,8 +271,8 @@ export default function MovieDetailPage({
           <div
             style={{
               position: "relative",
-              width: "230px",
-              minWidth: "230px",
+              width: "190px",
+              minWidth: "190px",
               aspectRatio: "2 / 3",
               borderRadius: "14px",
               overflow: "hidden",
@@ -287,7 +287,7 @@ export default function MovieDetailPage({
               alt={movie.title}
               fill
               priority
-              sizes="240px"
+              sizes="190px"
               style={{ objectFit: "cover" }}
             />
           </div>
@@ -304,13 +304,13 @@ export default function MovieDetailPage({
             {/* 2. Bold Movie Title */}
             <h1
               style={{
-                fontSize: "clamp(2rem, 3.6vw, 2.9rem)",
+                fontSize: "clamp(1.5rem, 2.6vw, 2.1rem)",
                 fontWeight: 800,
                 color: "#ffffff",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.18,
-                marginTop: "10px",
-                marginBottom: "12px",
+                marginTop: "8px",
+                marginBottom: "10px",
               }}
             >
               {movie.title}
