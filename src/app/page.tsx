@@ -7,7 +7,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { MovieCard } from "@/components/MovieCard";
 import { FilterBar } from "@/components/FilterBar";
 import { useVideo } from "@/context/VideoContext";
-import { Film, Flame } from "lucide-react";
+import { Film } from "lucide-react";
 import { dismissPreloader } from "@/lib/preloaderEvents";
 import { getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
 import initialMoviesJson from "@/data/initialMovies.json";
@@ -175,43 +175,6 @@ function HomeContent() {
 
       {/* Main Catalog Section */}
       <section className="container" style={{ paddingTop: "50px", paddingBottom: "80px" }}>
-        {/* Section Title Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            marginBottom: "28px",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                color: "var(--primary)",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                marginBottom: "6px",
-              }}
-            >
-              <Flame size={16} />
-              <span>Explore Unlimited Cinema</span>
-            </div>
-            <h2
-              style={{
-                fontSize: "clamp(1.2rem, 1.8vw, 1.45rem)",
-                fontWeight: 800,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {queryParam ? `Search Results for "${queryParam}"` : "Featured Titles & Releases"}
-            </h2>
-          </div>
-        </div>
 
         {/* Filter Bar with Genre pills, status tabs, and sorters */}
         <FilterBar
