@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useRef, useMemo, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -54,6 +54,9 @@ export default function AdminMovieEditPage({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // Baseline snapshot of loaded movie to track if any changes occurred
+  const [initialSnapshot, setInitialSnapshot] = useState<string | null>(null);
+
   // Form fields
   const [title, setTitle] = useState("");
   const [synopsis, setSynopsis] = useState("");
@@ -77,6 +80,64 @@ export default function AdminMovieEditPage({
 
   const isUpcoming = isMovieUpcoming(releaseDate);
 
+  // Detect whether any changes have been made compared to the initial baseline
+  const isChanged = useMemo(() => {
+    if (isNew) return true;
+    if (!initialSnapshot) return false;
+
+    const currentSnapshot = JSON.stringify({
+      title: title.trim(),
+      synopsis: synopsis.trim(),
+      genres: [...genres].sort(),
+      releaseDate,
+      posterUrl: posterUrl.trim(),
+      bannerUrl: bannerUrl.trim(),
+      trailerUrl: trailerUrl.trim(),
+      hasFullMovie: isUpcoming ? false : hasFullMovie,
+      downloadUrl: isUpcoming ? "" : downloadUrl.trim(),
+      featured: isUpcoming ? false : featured,
+      enableRating,
+      rating: enableRating ? rating.trim() : "",
+      duration: duration.trim(),
+      cast: cast.map((c) => ({
+        actorName: (c.actorName || "").trim(),
+        characterName: (c.characterName || "").trim(),
+        photoUrl: (c.photoUrl || "").trim(),
+      })),
+      crew: crew.map((c) => ({
+        name: (c.name || "").trim(),
+        role: (c.role || "").trim(),
+        photoUrl: (c.photoUrl || "").trim(),
+      })),
+      screenshots: screenshots.map((s) => ({
+        url: (s.url || "").trim(),
+        filename: (s.filename || "").trim(),
+      })),
+    });
+
+    return currentSnapshot !== initialSnapshot;
+  }, [
+    isNew,
+    initialSnapshot,
+    title,
+    synopsis,
+    genres,
+    releaseDate,
+    posterUrl,
+    bannerUrl,
+    trailerUrl,
+    hasFullMovie,
+    downloadUrl,
+    featured,
+    enableRating,
+    rating,
+    duration,
+    cast,
+    crew,
+    screenshots,
+    isUpcoming,
+  ]);
+
   // Verify admin session (redirects if site was closed and reopened)
   useEffect(() => {
     const token = getAdminToken();
@@ -94,27 +155,73 @@ export default function AdminMovieEditPage({
         .then((data) => {
           if (data.success && data.movie) {
             const m: Movie = data.movie;
-            setTitle(m.title || "");
-            setSynopsis(m.synopsis || "");
-            setGenres(Array.isArray(m.genre) ? m.genre : [m.genre].filter(Boolean));
-            setReleaseDate(m.releaseDate || "");
-            setPosterUrl(m.posterImage?.[0]?.url || "");
-            setBannerUrl(m.bannerImage?.[0]?.url || "");
-            const upcoming = isMovieUpcoming(m.releaseDate);
-            setHasFullMovie(upcoming ? false : Boolean(m.hasFullMovie));
-            setDownloadUrl(upcoming ? "" : (m.downloadUrl || ""));
-            setFeatured(upcoming ? false : Boolean(m.featured));
-            if (typeof m.rating === "number" && !isNaN(m.rating)) {
-              setEnableRating(true);
-              setRating(String(m.rating));
-            } else {
-              setEnableRating(false);
-              setRating("");
-            }
-            setDuration(m.duration || "2h 15m");
-            setCast(data.cast || m.cast || []);
-            setCrew(data.crew || m.crew || []);
-            setScreenshots(m.screenshots || []);
+            const t = m.title || "";
+            const syn = m.synopsis || "";
+            const gen = Array.isArray(m.genre) ? m.genre : [m.genre].filter(Boolean);
+            const rel = m.releaseDate || "";
+            const post = m.posterImage?.[0]?.url || "";
+            const ban = m.bannerImage?.[0]?.url || "";
+            const trail = m.trailerUrl || "";
+            const upcoming = isMovieUpcoming(rel);
+            const fullMov = upcoming ? false : Boolean(m.hasFullMovie);
+            const dl = upcoming ? "" : (m.downloadUrl || "");
+            const feat = upcoming ? false : Boolean(m.featured);
+            const enRating = typeof m.rating === "number" && !isNaN(m.rating);
+            const rat = enRating ? String(m.rating) : "";
+            const dur = m.duration || "2h 15m";
+            const castList: CastMember[] = data.cast || m.cast || [];
+            const crewList: CrewMember[] = data.crew || m.crew || [];
+            const scList: ImageItem[] = m.screenshots || [];
+
+            setTitle(t);
+            setSynopsis(syn);
+            setGenres(gen);
+            setReleaseDate(rel);
+            setPosterUrl(post);
+            setBannerUrl(ban);
+            setTrailerUrl(trail);
+            setHasFullMovie(fullMov);
+            setDownloadUrl(dl);
+            setFeatured(feat);
+            setEnableRating(enRating);
+            setRating(rat);
+            setDuration(dur);
+            setCast(castList);
+            setCrew(crewList);
+            setScreenshots(scList);
+
+            // Baseline snapshot to detect if user makes any edits
+            setInitialSnapshot(
+              JSON.stringify({
+                title: t.trim(),
+                synopsis: syn.trim(),
+                genres: [...gen].sort(),
+                releaseDate: rel,
+                posterUrl: post.trim(),
+                bannerUrl: ban.trim(),
+                trailerUrl: trail.trim(),
+                hasFullMovie: fullMov,
+                downloadUrl: dl.trim(),
+                featured: feat,
+                enableRating: enRating,
+                rating: rat.trim(),
+                duration: dur.trim(),
+                cast: castList.map((c) => ({
+                  actorName: (c.actorName || "").trim(),
+                  characterName: (c.characterName || "").trim(),
+                  photoUrl: (c.photoUrl || "").trim(),
+                })),
+                crew: crewList.map((c) => ({
+                  name: (c.name || "").trim(),
+                  role: (c.role || "").trim(),
+                  photoUrl: (c.photoUrl || "").trim(),
+                })),
+                screenshots: scList.map((s) => ({
+                  url: (s.url || "").trim(),
+                  filename: (s.filename || "").trim(),
+                })),
+              })
+            );
           }
         })
         .catch((e) => console.error("Error loading movie:", e))
@@ -1096,16 +1203,31 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Submit Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px", paddingTop: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", paddingTop: "10px", flexWrap: "wrap" }}>
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || (!isNew && !isChanged)}
             className="btn-primary"
-            style={{ padding: "12px 32px", fontSize: "1rem" }}
+            style={{
+              padding: "12px 32px",
+              fontSize: "1rem",
+              opacity: !isNew && !isChanged ? 0.45 : 1,
+              cursor: !isNew && !isChanged ? "not-allowed" : "pointer",
+              boxShadow: !isNew && !isChanged ? "none" : undefined,
+              filter: !isNew && !isChanged ? "grayscale(0.6)" : "none",
+              transition: "all var(--transition-fast)",
+            }}
+            title={!isNew && !isChanged ? "No changes detected to update" : "Update Movie"}
           >
             <Save size={18} />
             <span>{saving ? "Saving Movie..." : isNew ? "Create Movie" : "Update Movie"}</span>
           </button>
+
+          {!isNew && !isChanged && (
+            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontStyle: "italic" }}>
+              No changes detected
+            </span>
+          )}
 
           <Link href="/admin" className="btn-secondary" style={{ padding: "12px 24px" }}>
             Cancel
