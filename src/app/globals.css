@@ -588,8 +588,45 @@ button, input, textarea, select {
 
 @media (max-width: 640px) {
   .grid-movies {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .poster-container {
+    border-radius: 10px !important;
+  }
+
+  .movie-card-info {
+    padding: 6px 1px 2px !important;
+    gap: 2px !important;
+  }
+
+  .movie-card-title {
+    font-size: 0.78rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .movie-card-meta {
+    font-size: 0.67rem !important;
+    gap: 4px !important;
+  }
+
+  .movie-card-meta .meta-date svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .badge-pill-blue,
+  .badge-pill-red {
+    padding: 2px 7px !important;
+    font-size: 0.62rem !important;
+    border-radius: 4px !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .grid-movies {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
   }
 }
 
