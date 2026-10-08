@@ -74,8 +74,8 @@ export function HeroSection({ movies }: HeroSectionProps) {
     currentMovie.posterImage?.[0]?.url ||
     "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80";
 
-  const status = getMovieStatus(currentMovie.releaseDate, currentMovie.hasFullMovie);
-  const isUpcoming = isMovieUpcoming(currentMovie.releaseDate);
+  const status = getMovieStatus(currentMovie);
+  const isUpcoming = status === "upcoming";
 
   const formattedDate = currentMovie.releaseDate
     ? new Date(currentMovie.releaseDate + "T00:00:00").toLocaleDateString("en-US", {
@@ -159,10 +159,15 @@ export function HeroSection({ movies }: HeroSectionProps) {
         }}
       >
         <div style={{ maxWidth: "600px" }}>
-          {/* Coming Soon Pill Badge - Only displayed automatically if release date is in the future */}
-          {isUpcoming && (
+          {/* Status Pill Badge: Automatically changes from Coming Soon to Available Soon */}
+          {status === "upcoming" && (
             <div style={{ marginBottom: "10px" }}>
               <span className="badge-pill-blue">Coming Soon</span>
+            </div>
+          )}
+          {status === "available_soon" && (
+            <div style={{ marginBottom: "10px" }}>
+              <span className="badge-pill-amber">Available Soon</span>
             </div>
           )}
 

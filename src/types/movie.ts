@@ -51,10 +51,38 @@ export function isMovieUpcoming(releaseDate?: string): boolean {
   return !isNaN(release.getTime()) && release > today;
 }
 
-export function getMovieStatus(releaseDate?: string, hasFullMovie?: boolean): MovieStatus {
+export function hasMovieLink(movie?: Partial<Movie> | null): boolean {
+  if (!movie) return false;
+  const full = typeof movie.fullMovieUrl === "string" ? movie.fullMovieUrl.trim() : "";
+  const dl = typeof movie.downloadUrl === "string" ? movie.downloadUrl.trim() : "";
+  return Boolean(movie.hasFullMovie || full.length > 0 || dl.length > 0);
+}
+
+export function getMovieStatus(
+  releaseDateOrMovie?: string | Partial<Movie> | null,
+  hasFullMovieArg?: boolean
+): MovieStatus {
+  if (!releaseDateOrMovie) return "available_soon";
+
+  let releaseDate: string | undefined;
+  let hasLink = false;
+
+  if (typeof releaseDateOrMovie === "object") {
+    releaseDate = releaseDateOrMovie.releaseDate;
+    hasLink = hasMovieLink(releaseDateOrMovie);
+  } else {
+    releaseDate = releaseDateOrMovie;
+    hasLink = Boolean(hasFullMovieArg);
+  }
+
+  // 1. Release date is still in the future -> Coming Soon
   if (isMovieUpcoming(releaseDate)) {
     return "upcoming";
   }
-  return hasFullMovie ? "available_now" : "available_soon";
+
+  // 2. Release date has arrived or passed:
+  // If movie link has been received -> Available Now
+  // If NO movie link received -> Automatically change to Available Soon
+  return hasLink ? "available_now" : "available_soon";
 }
 

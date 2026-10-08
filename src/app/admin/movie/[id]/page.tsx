@@ -842,6 +842,28 @@ export default function AdminMovieEditPage({
               </div>
             </label>
 
+            {!isUpcoming && !hasFullMovie && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "10px 14px",
+                  background: "rgba(217, 119, 6, 0.1)",
+                  border: "1px solid rgba(217, 119, 6, 0.3)",
+                  borderRadius: "6px",
+                  color: "#fcd34d",
+                  fontSize: "0.82rem",
+                  lineHeight: 1.45,
+                }}
+              >
+                <Clock size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
+                <span>
+                  <strong>Automated Status: Available Soon</strong> — The release date has arrived, but no movie link is attached yet. CineNova automatically displays &quot;Available Soon&quot; to users instead of &quot;Coming Soon&quot;.
+                </span>
+              </div>
+            )}
+
             {!isUpcoming && hasFullMovie && (
               <div style={{ marginTop: "6px" }}>
                 <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, marginBottom: "6px" }}>

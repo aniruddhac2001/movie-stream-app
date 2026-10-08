@@ -264,12 +264,25 @@ button, input, textarea, select {
 }
 
 .badge-available-soon {
-  background: #2563eb;
+  background: #d97706;
   color: #ffffff;
   border: none;
   font-weight: 600;
   padding: 4px 14px;
   border-radius: var(--radius-full);
+}
+
+.badge-pill-amber {
+  background: #d97706;
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.01em;
 }
 
 .badge-pill-blue {
@@ -617,7 +630,8 @@ button, input, textarea, select {
   }
 
   .badge-pill-blue,
-  .badge-pill-red {
+  .badge-pill-red,
+  .badge-pill-amber {
     padding: 2px 7px !important;
     font-size: 0.62rem !important;
     border-radius: 4px !important;

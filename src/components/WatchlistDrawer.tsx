@@ -123,7 +123,7 @@ export function WatchlistDrawer() {
           ) : (
             watchlist.map((movie) => {
               const poster = movie.posterImage?.[0]?.url || "/placeholder-poster.jpg";
-              const status = getMovieStatus(movie.releaseDate, movie.hasFullMovie);
+              const status = getMovieStatus(movie);
 
               return (
                 <div
@@ -196,7 +196,7 @@ export function WatchlistDrawer() {
                         }`}
                         style={{ fontSize: "0.65rem", padding: "2px 8px" }}
                       >
-                        {status === "available_now" ? "Stream Now" : "Upcoming"}
+                        {status === "available_now" ? "Stream Now" : status === "upcoming" ? "Coming Soon" : "Available Soon"}
                       </span>
 
                       <div style={{ display: "flex", gap: "6px" }}>

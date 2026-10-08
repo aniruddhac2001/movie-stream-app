@@ -18,7 +18,7 @@ export function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
     movie.bannerImage?.[0]?.url ||
     "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80";
 
-  const isUpcoming = isMovieUpcoming(movie.releaseDate);
+  const status = getMovieStatus(movie);
 
   // Format date like: "November 8, 2026"
   const formattedDate = movie.releaseDate
@@ -54,8 +54,8 @@ export function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
           loading="lazy"
         />
 
-        {/* Top-Left Status Pill Badge: Only displayed automatically if release date is in the future */}
-        {isUpcoming && (
+        {/* Top-Left Status Pill Badge: Automatically changes from Coming Soon to Available Soon */}
+        {status === "upcoming" && (
           <div
             style={{
               position: "absolute",
@@ -66,6 +66,19 @@ export function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
             }}
           >
             <span className="badge-pill-blue">Coming Soon</span>
+          </div>
+        )}
+        {status === "available_soon" && (
+          <div
+            style={{
+              position: "absolute",
+              top: "8px",
+              left: "8px",
+              zIndex: 5,
+              pointerEvents: "none",
+            }}
+          >
+            <span className="badge-pill-amber">Available Soon</span>
           </div>
         )}
       </div>

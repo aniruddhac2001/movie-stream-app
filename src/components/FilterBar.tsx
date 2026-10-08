@@ -82,6 +82,23 @@ export function FilterBar({
           </button>
 
           <button
+            onClick={() => onSelectStatus("available_soon")}
+            className="btn-ghost"
+            style={{
+              padding: "6px 14px",
+              borderRadius: "var(--radius-full)",
+              fontSize: "0.82rem",
+              fontWeight: 600,
+              background: statusFilter === "available_soon" ? "#d97706" : "transparent",
+              color: statusFilter === "available_soon" ? "#ffffff" : "var(--text-secondary)",
+              boxShadow: statusFilter === "available_soon" ? "0 2px 10px rgba(217, 119, 6, 0.4)" : "none",
+            }}
+          >
+            <Clock size={14} />
+            <span>Available Soon</span>
+          </button>
+
+          <button
             onClick={() => onSelectStatus("upcoming")}
             className="btn-ghost"
             style={{

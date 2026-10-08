@@ -296,7 +296,7 @@ export default function AdminPage() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {filtered.map((m) => {
-            const status = getMovieStatus(m.releaseDate, m.hasFullMovie);
+            const status = getMovieStatus(m);
             const poster = m.posterImage?.[0]?.url || "/placeholder-poster.jpg";
 
             return (

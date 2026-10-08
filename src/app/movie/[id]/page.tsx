@@ -155,8 +155,8 @@ export default function MovieDetailPage({
   }
 
   const inWatchlist = isInWatchlist(movie.id);
-  const status = getMovieStatus(movie.releaseDate, movie.hasFullMovie);
-  const isUpcoming = isMovieUpcoming(movie.releaseDate);
+  const status = getMovieStatus(movie);
+  const isUpcoming = status === "upcoming";
 
   const bannerUrl =
     movie.bannerImage?.[0]?.url ||
@@ -252,10 +252,15 @@ export default function MovieDetailPage({
 
           {/* Right Column: Title, Metadata, Synopsis, Actions matching Screenshot 2 */}
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-            {/* 1. Status Pill Badge: Only displayed automatically if release date is in the future */}
-            {isUpcoming && (
+            {/* 1. Status Pill Badge: Coming Soon or Available Soon */}
+            {status === "upcoming" && (
               <div style={{ marginBottom: "6px" }}>
                 <span className="badge-pill-blue">Coming Soon</span>
+              </div>
+            )}
+            {status === "available_soon" && (
+              <div style={{ marginBottom: "6px" }}>
+                <span className="badge-pill-amber">Available Soon</span>
               </div>
             )}
 
@@ -352,7 +357,7 @@ export default function MovieDetailPage({
                 <span>Watch Trailer</span>
               </button>
 
-              {isUpcoming ? (
+              {status === "upcoming" ? (
                 <div
                   style={{
                     display: "inline-flex",
@@ -365,6 +370,24 @@ export default function MovieDetailPage({
                 >
                   <Clock size={18} style={{ opacity: 0.9 }} />
                   <span>Releases on {formattedDate}</span>
+                </div>
+              ) : status === "available_soon" ? (
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    color: "#fbbf24",
+                    fontSize: "0.92rem",
+                    fontWeight: 600,
+                    background: "rgba(245, 158, 11, 0.1)",
+                    border: "1px solid rgba(245, 158, 11, 0.25)",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Clock size={16} style={{ opacity: 0.9 }} />
+                  <span>Available Soon — Movie Link Arriving Shortly</span>
                 </div>
               ) : (
                 <button

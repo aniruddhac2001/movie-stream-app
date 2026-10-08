@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Movie } from "@/types/movie";
+import { Movie, getMovieStatus } from "@/types/movie";
 import { HeroSection } from "@/components/HeroSection";
 import { MovieCard } from "@/components/MovieCard";
 import { FilterBar } from "@/components/FilterBar";
@@ -135,18 +135,7 @@ function HomeContent() {
 
     // Status filter
     if (statusFilter !== "all") {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      result = result.filter((m) => {
-        if (!m.releaseDate) return statusFilter === "upcoming";
-        const rel = new Date(m.releaseDate + "T00:00:00");
-        const isUpcoming = rel > today;
-
-        if (statusFilter === "upcoming") return isUpcoming;
-        if (statusFilter === "available_now") return !isUpcoming && m.hasFullMovie;
-        return true;
-      });
+      result = result.filter((m) => getMovieStatus(m) === statusFilter);
     }
 
     // Sort order
