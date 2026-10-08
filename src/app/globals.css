@@ -815,11 +815,131 @@ button, input, textarea, select {
   }
 }
 
+/* Movie Detail Hero */
+.movie-detail-hero {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 24px;
+  padding-bottom: 50px;
+}
+
+.movie-detail-banner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%);
+}
+
+.movie-detail-banner-img {
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.movie-detail-banner-overlay-side {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(7, 8, 12, 0.96) 0%, rgba(7, 8, 12, 0.88) 42%, rgba(7, 8, 12, 0.45) 100%);
+}
+
+.movie-detail-banner-overlay-top {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.6) 35%, transparent 70%);
+}
+
+.movie-detail-back-container {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 20px;
+}
+
+/* Home Page Hero Overlays */
+.hero-overlay-side {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(7, 8, 12, 0.95) 0%, rgba(7, 8, 12, 0.82) 45%, rgba(7, 8, 12, 0.15) 100%);
+}
+
+.hero-overlay-top {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.6) 35%, transparent 70%);
+}
+
+/* Mobile: Perfectly Showcase Banner at Top */
 @media (max-width: 768px) {
+  .movie-detail-hero {
+    min-height: auto !important;
+    padding-top: 0 !important;
+    padding-bottom: 30px !important;
+    display: block !important;
+  }
+
+  .movie-detail-banner {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 250px !important;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0.8) 75%, rgba(0, 0, 0, 0) 100%) !important;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0.8) 75%, rgba(0, 0, 0, 0) 100%) !important;
+  }
+
+  .movie-detail-banner-img {
+    object-position: center 20% !important;
+  }
+
+  /* Soften side gradient into a clean vertical vignette on mobile so full banner art is visible */
+  .movie-detail-banner-overlay-side {
+    background: linear-gradient(to bottom, rgba(7, 8, 12, 0.45) 0%, transparent 40%, rgba(7, 8, 12, 0.9) 100%) !important;
+  }
+
+  .movie-detail-banner-overlay-top {
+    background: linear-gradient(to top, rgba(7, 8, 12, 0.95) 0%, transparent 60%) !important;
+  }
+
+  .movie-detail-back-container {
+    position: absolute !important;
+    top: 14px !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 25 !important;
+    margin-bottom: 0 !important;
+  }
+
   .hero-movie-content {
+    position: relative !important;
+    z-index: 10 !important;
+    margin-top: -75px !important;
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 20px !important;
+    gap: 16px !important;
+  }
+
+  .detail-poster-card {
+    width: 155px !important;
+    min-width: 155px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 0, 0, 0.8) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  }
+
+  .detail-meta-row {
+    justify-content: center !important;
+  }
+
+  .detail-actions-row {
+    justify-content: center !important;
+    margin-bottom: 16px !important;
+  }
+
+  .hero-overlay-side {
+    background: linear-gradient(to right, rgba(7, 8, 12, 0.85) 0%, rgba(7, 8, 12, 0.65) 55%, rgba(7, 8, 12, 0.2) 100%) !important;
   }
 }

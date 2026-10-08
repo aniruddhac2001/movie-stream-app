@@ -179,67 +179,24 @@ export default function MovieDetailPage({
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
       {/* Unified Hero Banner Section matching Screenshot 2 */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "480px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          overflow: "hidden",
-          paddingTop: "24px",
-          paddingBottom: "50px",
-        }}
-      >
+      <div className="movie-detail-hero">
         {/* Backdrop Banner Image */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            WebkitMaskImage:
-              "linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%)",
-            maskImage:
-              "linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%)",
-          }}
-        >
+        <div className="movie-detail-banner">
           <Image
             src={bannerUrl}
             alt={movie.title}
             fill
             priority
             sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: "center 25%" }}
+            className="movie-detail-banner-img"
           />
           {/* Seamless Cinematic Gradient Overlays matching Screenshot 2 */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to right, rgba(7, 8, 12, 0.96) 0%, rgba(7, 8, 12, 0.88) 42%, rgba(7, 8, 12, 0.45) 100%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to top, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.6) 35%, transparent 70%)",
-            }}
-          />
+          <div className="movie-detail-banner-overlay-side" />
+          <div className="movie-detail-banner-overlay-top" />
         </div>
 
         {/* Back Button */}
-        <div
-          className="container"
-          style={{
-            position: "relative",
-            zIndex: 10,
-            marginBottom: "20px",
-          }}
-        >
+        <div className="container movie-detail-back-container">
           <button
             onClick={() => router.back()}
             className="btn-secondary"
@@ -269,6 +226,7 @@ export default function MovieDetailPage({
         >
           {/* Left Column: Clean Poster Card (NO buttons underneath) */}
           <div
+            className="detail-poster-card"
             style={{
               position: "relative",
               width: "190px",
@@ -318,6 +276,7 @@ export default function MovieDetailPage({
 
             {/* 3. Genre Pills & Release Date Row */}
             <div
+              className="detail-meta-row"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -369,6 +328,7 @@ export default function MovieDetailPage({
 
             {/* 5. Action Buttons: Watch Trailer & Download Movie */}
             <div
+              className="detail-actions-row"
               style={{
                 display: "flex",
                 alignItems: "center",
