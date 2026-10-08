@@ -59,8 +59,8 @@ export function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
           <div
             style={{
               position: "absolute",
-              top: "10px",
-              left: "10px",
+              top: "8px",
+              left: "8px",
               zIndex: 5,
               pointerEvents: "none",
             }}
@@ -81,7 +81,7 @@ export function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
 
           {formattedDate && (
             <span className="meta-date">
-              <Calendar size={13} style={{ flexShrink: 0, opacity: 0.85 }} />
+              <Calendar size={11.5} style={{ flexShrink: 0, opacity: 0.85 }} />
               <span>{formattedDate}</span>
             </span>
           )}

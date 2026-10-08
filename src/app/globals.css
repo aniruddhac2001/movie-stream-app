@@ -275,9 +275,9 @@ button, input, textarea, select {
 .badge-pill-blue {
   background: #2563eb;
   color: #ffffff;
-  padding: 4px 14px;
+  padding: 3px 10px;
   border-radius: 9999px;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -288,9 +288,9 @@ button, input, textarea, select {
 .badge-pill-red {
   background: #ef4444;
   color: #ffffff;
-  padding: 4px 14px;
+  padding: 3px 10px;
   border-radius: 9999px;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -399,15 +399,15 @@ button, input, textarea, select {
 
 /* Movie Card Bottom Info matching Screenshot 1 */
 .movie-card-info {
-  padding: 10px 4px 4px;
+  padding: 8px 2px 2px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .movie-card-title {
   color: #ffffff;
-  font-size: 1.02rem;
+  font-size: 0.88rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -423,8 +423,8 @@ button, input, textarea, select {
 .movie-card-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
+  gap: 6px;
+  font-size: 0.74rem;
   color: #9ca3af;
   flex-wrap: wrap;
 }
@@ -582,21 +582,28 @@ button, input, textarea, select {
 
 .grid-movies {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 @media (max-width: 640px) {
   .grid-movies {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-movies {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
   }
 }
 
 @media (min-width: 1280px) {
   .grid-movies {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 22px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 16px;
   }
 }
 
