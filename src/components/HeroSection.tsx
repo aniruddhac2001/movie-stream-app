@@ -13,7 +13,7 @@ interface HeroSectionProps {
   onPlayVideo?: (url: string, title: string) => void;
 }
 
-export function HeroSection({ movies }: HeroSectionProps) {
+export function HeroSection({ movies, onPlayVideo }: HeroSectionProps) {
   // Only released movies whose release date has arrived can appear in hero spotlight
   const eligibleMovies = movies.filter((m) => !isMovieUpcoming(m.releaseDate));
   const heroMovies = eligibleMovies.filter((m) => m.featured || m.bannerImage?.length).slice(0, 5);

@@ -377,7 +377,9 @@ export default function MovieDetailPage({
               {movie.trailerUrl && (
                 <button
                   onClick={() => {
-                    playVideo(movie.trailerUrl, `${movie.title} - Official Trailer`);
+                    if (movie.trailerUrl) {
+                      playVideo(movie.trailerUrl, `${movie.title} - Official Trailer`);
+                    }
                   }}
                   className="btn-watch-trailer"
                   title="Watch Official Trailer"
