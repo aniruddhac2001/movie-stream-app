@@ -349,6 +349,8 @@ export default function MovieDetailPage({
             >
               {/* Primary: Play Movie Button — ONLY displayed when movie stream link (e.g. Google Drive) is uploaded in CineNova management */}
               {(() => {
+                if (status === "upcoming") return null;
+
                 const isDrive = (url?: string) =>
                   Boolean(url && (url.includes("drive.google.com") || url.includes("/preview") || url.includes("google.com/file")));
 

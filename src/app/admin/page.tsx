@@ -13,6 +13,8 @@ import {
   Trash2,
   Film,
   Eye,
+  HardDrive,
+  Play,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { dismissPreloader } from "@/lib/preloaderEvents";
@@ -376,6 +378,83 @@ export default function AdminPage() {
                   >
                     {status === "available_now" ? "Full Movie Available" : status === "upcoming" ? "Coming Soon" : "Available Soon"}
                   </span>
+
+                  {/* Stream Status (Google Drive / Direct / Missing) */}
+                  {(() => {
+                    const isDrive = Boolean(
+                      (m.fullMovieUrl && m.fullMovieUrl.includes("drive.google.com")) ||
+                      (m.downloadUrl && m.downloadUrl.includes("drive.google.com"))
+                    );
+                    const hasStream = Boolean(
+                      (m.fullMovieUrl && m.fullMovieUrl.trim().length > 0) ||
+                      (m.downloadUrl && m.downloadUrl.trim().length > 0)
+                    );
+
+                    if (isDrive) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "0.7rem",
+                            color: "#93c5fd",
+                            background: "rgba(37, 99, 235, 0.18)",
+                            border: "1px solid rgba(59, 130, 246, 0.4)",
+                            padding: "3px 8px",
+                            borderRadius: "4px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontWeight: 600,
+                          }}
+                          title="Google Drive Stream Link Active — 'Play Movie' enabled"
+                        >
+                          <HardDrive size={11} color="#60a5fa" />
+                          <span>Google Drive Stream</span>
+                        </span>
+                      );
+                    }
+
+                    if (hasStream) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "0.7rem",
+                            color: "#34d399",
+                            background: "rgba(16, 185, 129, 0.15)",
+                            border: "1px solid rgba(16, 185, 129, 0.35)",
+                            padding: "3px 8px",
+                            borderRadius: "4px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontWeight: 600,
+                          }}
+                          title="Stream Link Active — 'Play Movie' enabled"
+                        >
+                          <Play size={10} fill="#34d399" />
+                          <span>Stream Ready</span>
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          color: "#94a3b8",
+                          background: "rgba(255, 255, 255, 0.04)",
+                          border: "1px dashed rgba(255, 255, 255, 0.15)",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                        title="No Google Drive or stream link attached. Edit movie to add one."
+                      >
+                        <span>No Stream Link</span>
+                      </span>
+                    );
+                  })()}
 
                   {m.trailerUrl && (
                     <span

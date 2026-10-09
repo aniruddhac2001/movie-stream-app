@@ -26,6 +26,9 @@ import {
   Zap,
   Check,
   Play,
+  HardDrive,
+  HelpCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
@@ -98,6 +101,17 @@ export default function AdminMovieEditPage({
   const posterAnalysis = useMemo(() => {
     return analyzeImageResolution(posterUrl, "poster", title);
   }, [posterUrl, title]);
+
+  const [showDriveGuide, setShowDriveGuide] = useState(false);
+
+  const isGoogleDriveLink = useMemo(() => {
+    return Boolean(
+      fullMovieUrl &&
+        (fullMovieUrl.includes("drive.google.com") ||
+          fullMovieUrl.includes("/preview") ||
+          fullMovieUrl.includes("google.com/file"))
+    );
+  }, [fullMovieUrl]);
 
   // Check for curated high-res backdrops when title is present
   useEffect(() => {
@@ -258,11 +272,10 @@ export default function AdminMovieEditPage({
             const post = m.posterImage?.[0]?.url || "";
             const ban = m.bannerImage?.[0]?.url || "";
             const trail = m.trailerUrl || "";
-            const upcoming = isMovieUpcoming(rel);
-            const fullMov = upcoming ? false : Boolean(m.hasFullMovie);
-            const fullMovUrl = upcoming ? "" : (m.fullMovieUrl || "");
-            const dl = upcoming ? "" : (m.downloadUrl || "");
-            const feat = upcoming ? false : Boolean(m.featured);
+            const fullMovUrl = m.fullMovieUrl || "";
+            const dl = m.downloadUrl || "";
+            const fullMov = Boolean(m.hasFullMovie || fullMovUrl.trim().length > 0 || dl.trim().length > 0);
+            const feat = Boolean(m.featured);
             const enRating = typeof m.rating === "number" && !isNaN(m.rating);
             const rat = enRating ? String(m.rating) : "";
             const dur = m.duration || "2h 15m";
@@ -429,9 +442,9 @@ export default function AdminMovieEditPage({
       posterImage: posterUrl ? [{ url: posterUrl.trim() }] : [],
       bannerImage: bannerUrl ? [{ url: bannerUrl.trim() }] : [],
       trailerUrl: trailerUrl.trim(),
-      hasFullMovie: isUpcoming ? false : hasFullMovie,
-      fullMovieUrl: isUpcoming ? "" : (hasFullMovie ? fullMovieUrl.trim() : ""),
-      downloadUrl: isUpcoming ? "" : (hasFullMovie ? downloadUrl.trim() : ""),
+      hasFullMovie: Boolean(hasFullMovie || fullMovieUrl.trim().length > 0 || downloadUrl.trim().length > 0),
+      fullMovieUrl: fullMovieUrl.trim(),
+      downloadUrl: downloadUrl.trim(),
       featured: isUpcoming ? false : featured,
       duration: duration.trim(),
       cast: cast.filter((c) => c.actorName.trim()),
@@ -1266,34 +1279,236 @@ export default function AdminMovieEditPage({
           )}
         </div>
 
-        {/* Section 4: Video Streaming & Downloads */}
+        {/* Section 4: Google Drive & Full Movie Streaming */}
         <div
+          id="streaming-section"
           style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
+            background: "rgba(20, 23, 34, 0.75)",
+            border: "1px solid rgba(59, 130, 246, 0.28)",
             borderRadius: "var(--radius-md)",
             padding: "24px",
             display: "flex",
             flexDirection: "column",
-            gap: "18px",
+            gap: "20px",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
           }}
         >
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
-            <Video size={18} color="var(--primary)" />
-            <span>Streaming & Playback</span>
-          </h2>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+            <h2 style={{ fontSize: "1.15rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "10px", margin: 0 }}>
+              <HardDrive size={20} color="#60a5fa" />
+              <span>Google Drive &amp; Full Movie Streaming</span>
+            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  color: isGoogleDriveLink ? "#60a5fa" : fullMovieUrl ? "#34d399" : "#94a3b8",
+                  background: isGoogleDriveLink ? "rgba(59, 130, 246, 0.15)" : fullMovieUrl ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                  border: `1px solid ${isGoogleDriveLink ? "rgba(59, 130, 246, 0.35)" : fullMovieUrl ? "rgba(16, 185, 129, 0.35)" : "var(--border-subtle)"}`,
+                  padding: "4px 10px",
+                  borderRadius: "var(--radius-full)",
+                  fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                {isGoogleDriveLink ? (
+                  <>
+                    <HardDrive size={12} />
+                    <span>Google Drive Stream Attached</span>
+                  </>
+                ) : fullMovieUrl ? (
+                  <>
+                    <Play size={12} fill="#34d399" />
+                    <span>Stream URL Attached</span>
+                  </>
+                ) : (
+                  <span>Awaiting Video Link</span>
+                )}
+              </span>
+            </div>
+          </div>
 
-          <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
-              Trailer URL (YouTube, Vimeo, or direct MP4)
+          <p style={{ fontSize: "0.86rem", color: "#cbd5e1", margin: 0, lineHeight: 1.5 }}>
+            To enable the primary <strong>&quot;Play Movie&quot;</strong> button on CineNova (both on the movie page and homepage hero banner), paste your <strong>Google Drive share link</strong> or direct video stream URL below.
+          </p>
+
+          {/* Primary Stream Box: Google Drive & Web Player */}
+          <div
+            style={{
+              padding: "18px 20px",
+              background: "linear-gradient(145deg, rgba(30, 58, 138, 0.18), rgba(15, 23, 42, 0.6))",
+              border: `1px solid ${isGoogleDriveLink ? "rgba(96, 165, 250, 0.5)" : "rgba(59, 130, 246, 0.25)"}`,
+              borderRadius: "10px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px",
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px", flexWrap: "wrap", gap: "8px" }}>
+                <label style={{ fontSize: "0.88rem", fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: "8px", color: "#f8fafc" }}>
+                  <HardDrive size={16} color="#60a5fa" />
+                  <span>Google Drive / Stream Video Link</span>
+                  <span style={{ fontSize: "0.72rem", color: "#bfdbfe", background: "rgba(59, 130, 246, 0.25)", padding: "2px 7px", borderRadius: "4px", fontWeight: 600 }}>
+                    Powers &quot;Play Movie&quot;
+                  </span>
+                </label>
+
+                {fullMovieUrl && (
+                  <button
+                    type="button"
+                    onClick={() => playVideo(fullMovieUrl, `${title || "Movie"} - Stream Preview`)}
+                    style={{
+                      background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                      border: "1px solid rgba(147, 197, 253, 0.5)",
+                      color: "#ffffff",
+                      padding: "5px 12px",
+                      borderRadius: "6px",
+                      fontSize: "0.76rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+                      transition: "transform 0.15s ease",
+                    }}
+                    title="Test playing this video directly in the CineNova player modal"
+                  >
+                    <Play size={13} fill="#ffffff" />
+                    <span>Test Play Video</span>
+                  </button>
+                )}
+              </div>
+
+              <input
+                type="url"
+                value={fullMovieUrl}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFullMovieUrl(val);
+                  if (val.trim().length > 0) {
+                    setHasFullMovie(true);
+                  }
+                }}
+                placeholder="https://drive.google.com/file/d/1.../view?usp=sharing or direct .mp4 URL"
+                className="input-field"
+                style={{
+                  background: "rgba(10, 15, 28, 0.8)",
+                  borderColor: isGoogleDriveLink ? "rgba(96, 165, 250, 0.6)" : "var(--border-subtle)",
+                  fontSize: "0.9rem",
+                  padding: "10px 14px",
+                }}
+              />
+
+              {/* Status detection badge */}
+              {isGoogleDriveLink && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "8px",
+                    padding: "8px 12px",
+                    background: "rgba(59, 130, 246, 0.15)",
+                    border: "1px solid rgba(59, 130, 246, 0.3)",
+                    borderRadius: "6px",
+                    color: "#93c5fd",
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  <CheckCircle2 size={15} color="#60a5fa" style={{ flexShrink: 0 }} />
+                  <span>
+                    <strong>Google Drive link verified:</strong> CineNova automatically converts this into the cinema streaming player format for seamless playback.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Quick How-to toggle for Google Drive */}
+            <div style={{ marginTop: "2px" }}>
+              <button
+                type="button"
+                onClick={() => setShowDriveGuide((prev) => !prev)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#93c5fd",
+                  fontSize: "0.8rem",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 0",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "3px",
+                }}
+              >
+                <HelpCircle size={14} />
+                <span>{showDriveGuide ? "Hide instructions" : "How to upload and get a shareable Google Drive link?"}</span>
+              </button>
+
+              {showDriveGuide && (
+                <div
+                  style={{
+                    marginTop: "10px",
+                    padding: "14px 16px",
+                    background: "rgba(15, 23, 42, 0.85)",
+                    border: "1px solid rgba(96, 165, 250, 0.25)",
+                    borderRadius: "8px",
+                    fontSize: "0.82rem",
+                    lineHeight: 1.6,
+                    color: "#cbd5e1",
+                  }}
+                >
+                  <strong style={{ color: "#ffffff", display: "block", marginBottom: "6px" }}>
+                    3 Easy Steps to Stream Movies via Google Drive:
+                  </strong>
+                  <ol style={{ margin: 0, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <li>
+                      <strong>Upload Movie:</strong> Upload your video file (<code>.mp4</code>, <code>.mkv</code>, <code>.webm</code>) to your Google Drive account.
+                    </li>
+                    <li>
+                      <strong>Make it Publicly Viewable:</strong> In Google Drive, right-click the video file &rarr; select <strong>Share</strong> &rarr; under <em>General Access</em>, change from <strong>Restricted</strong> to <strong>&quot;Anyone with the link&quot;</strong> (with role set to <em>Viewer</em>).
+                    </li>
+                    <li>
+                      <strong>Copy &amp; Paste:</strong> Click <strong>&quot;Copy link&quot;</strong> and paste it into the input field above. CineNova streams it directly without file size limitations!
+                    </li>
+                  </ol>
+                </div>
+              )}
+            </div>
+
+            {/* Availability Toggle */}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                cursor: "pointer",
+                paddingTop: "6px",
+                borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={hasFullMovie}
+                onChange={(e) => setHasFullMovie(e.target.checked)}
+                style={{ width: 17, height: 17, accentColor: "var(--primary)", cursor: "pointer" }}
+              />
+              <div>
+                <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#ffffff" }}>
+                  Mark Full Movie as Ready for Streaming
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block" }}>
+                  (Automatically turned on whenever a stream URL is attached)
+                </span>
+              </div>
             </label>
-            <input
-              type="text"
-              value={trailerUrl}
-              onChange={(e) => setTrailerUrl(e.target.value)}
-              placeholder="e.g. https://youtu.be/0Yq_FsMuP8U"
-              className="input-field"
-            />
           </div>
 
           {/* Upcoming notice message if release date is in the future */}
@@ -1304,137 +1519,53 @@ export default function AdminMovieEditPage({
                 alignItems: "flex-start",
                 gap: "12px",
                 padding: "14px 16px",
-                background: "rgba(239, 68, 68, 0.08)",
-                border: "1px solid rgba(239, 68, 68, 0.28)",
+                background: "rgba(59, 130, 246, 0.08)",
+                border: "1px solid rgba(59, 130, 246, 0.28)",
                 borderRadius: "var(--radius-sm)",
-                color: "#fca5a5",
+                color: "#bfdbfe",
                 fontSize: "0.85rem",
                 lineHeight: 1.5,
               }}
             >
-              <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <Clock size={18} color="#60a5fa" style={{ flexShrink: 0, marginTop: "2px" }} />
               <div>
-                <strong style={{ color: "#ffffff" }}>Release Date has not arrived yet:</strong>
+                <strong style={{ color: "#ffffff" }}>Advance Link Stored (Release Date: {releaseDate || "Upcoming"}):</strong>
                 <div style={{ color: "#cbd5e1", marginTop: "2px", fontSize: "0.8rem" }}>
-                  This title is marked as upcoming. Full Movie Streaming / Download and Homepage Hero Spotlight Showcase are disabled until the release date.
+                  Your Google Drive link is securely stored. The &quot;Play Movie&quot; button and homepage hero spotlight will automatically activate for audience viewing when the release date arrives!
                 </div>
               </div>
             </div>
           )}
 
-          {/* Full movie availability toggle */}
-          <div
-            style={{
-              padding: "16px",
-              background: isUpcoming ? "rgba(255, 255, 255, 0.015)" : "rgba(255, 255, 255, 0.03)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "var(--radius-sm)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              opacity: isUpcoming ? 0.45 : 1,
-              cursor: isUpcoming ? "not-allowed" : "default",
-            }}
-          >
-            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: isUpcoming ? "not-allowed" : "pointer" }}>
-              <input
-                type="checkbox"
-                checked={isUpcoming ? false : hasFullMovie}
-                disabled={isUpcoming}
-                onChange={(e) => setHasFullMovie(e.target.checked)}
-                style={{ width: 18, height: 18, accentColor: "var(--primary)", cursor: isUpcoming ? "not-allowed" : "pointer" }}
-              />
-              <div>
-                <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Full Movie Available for Streaming / Download</div>
-                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                  {isUpcoming
-                    ? "Disabled — movie has not been released yet"
-                    : "Toggle on if the entire film is ready on CineNova"}
-                </div>
-              </div>
+          {/* Download Mirror / Cloud Link */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+              Alternative Download / Cloud Mirror Link (Optional)
             </label>
+            <input
+              type="url"
+              value={downloadUrl}
+              onChange={(e) => setDownloadUrl(e.target.value)}
+              placeholder="e.g. https://hubcloud.club/... or secondary download mirror"
+              className="input-field"
+            />
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px", display: "block" }}>
+              Optional backup download link button displayed alongside the primary cinema stream player.
+            </span>
+          </div>
 
-            {!isUpcoming && !hasFullMovie && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "10px 14px",
-                  background: "rgba(217, 119, 6, 0.1)",
-                  border: "1px solid rgba(217, 119, 6, 0.3)",
-                  borderRadius: "6px",
-                  color: "#fcd34d",
-                  fontSize: "0.82rem",
-                  lineHeight: 1.45,
-                }}
-              >
-                <Clock size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
-                <span>
-                  <strong>Automated Status: Available Soon</strong> — The release date has arrived, but no movie link is attached yet. CineNova automatically displays &quot;Available Soon&quot; to users instead of &quot;Coming Soon&quot;.
-                </span>
-              </div>
-            )}
-
-            {!isUpcoming && hasFullMovie && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "8px" }}>
-                {/* 1. Online Video Stream URL for the Website Player */}
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <label style={{ fontSize: "0.82rem", fontWeight: 600, margin: 0, display: "flex", alignItems: "center", gap: "6px" }}>
-                      <Play size={14} color="var(--primary)" />
-                      <span>Online Movie Stream URL (Watch on Website)</span>
-                    </label>
-                    {fullMovieUrl && (
-                      <button
-                        type="button"
-                        onClick={() => playVideo(fullMovieUrl, `${title || "Movie"} - Stream Preview`)}
-                        style={{
-                          background: "rgba(229, 9, 20, 0.15)",
-                          border: "1px solid rgba(229, 9, 20, 0.35)",
-                          color: "#ff4d5a",
-                          padding: "3px 8px",
-                          borderRadius: "4px",
-                          fontSize: "0.72rem",
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        <Play size={11} fill="#ff4d5a" />
-                        <span>Test Play Stream</span>
-                      </button>
-                    )}
-                  </div>
-                  <input
-                    type="url"
-                    value={fullMovieUrl}
-                    onChange={(e) => setFullMovieUrl(e.target.value)}
-                    placeholder="https://... MP4, YouTube, Vimeo, Google Drive, or Web Stream Player URL"
-                    className="input-field"
-                  />
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px", display: "block" }}>
-                    This URL enables the primary <strong>&quot;Play Movie&quot;</strong> button to stream the video directly inside the CineNova cinema player.
-                  </span>
-                </div>
-
-                {/* 2. Download Mirror Link */}
-                <div>
-                  <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, marginBottom: "6px" }}>
-                    Download Mirror / Cloud Link (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={downloadUrl}
-                    onChange={(e) => setDownloadUrl(e.target.value)}
-                    placeholder="https://... HubCloud, Google Drive, or external download link"
-                    className="input-field"
-                  />
-                </div>
-              </div>
-            )}
+          {/* Official Trailer Input */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+              Official Trailer URL (YouTube, Vimeo, or direct MP4)
+            </label>
+            <input
+              type="text"
+              value={trailerUrl}
+              onChange={(e) => setTrailerUrl(e.target.value)}
+              placeholder="e.g. https://youtu.be/0Yq_FsMuP8U"
+              className="input-field"
+            />
           </div>
 
           {/* Hero Banner Feature Toggle */}
@@ -1448,7 +1579,7 @@ export default function AdminMovieEditPage({
               background: isUpcoming ? "rgba(255, 255, 255, 0.015)" : "rgba(255, 255, 255, 0.03)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "var(--radius-sm)",
-              opacity: isUpcoming ? 0.45 : 1,
+              opacity: isUpcoming ? 0.5 : 1,
             }}
           >
             <input
@@ -1472,7 +1603,7 @@ export default function AdminMovieEditPage({
           </label>
         </div>
 
-        {/* Section 4: Cast & Characters */}
+        {/* Section 5: Cast & Characters */}
         <div
           style={{
             background: "rgba(20, 23, 34, 0.6)",

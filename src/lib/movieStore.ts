@@ -152,10 +152,13 @@ export async function saveMovie(movieData: Partial<Movie>): Promise<{
       url: toHighResImageUrl(img.url, "banner", movieData.title),
     })),
     screenshots: movieData.screenshots || [],
-    trailerUrl: movieData.trailerUrl || "",
-    hasFullMovie: isUpcoming ? false : Boolean(movieData.hasFullMovie),
-    fullMovieUrl: isUpcoming ? "" : (movieData.fullMovieUrl || ""),
-    downloadUrl: isUpcoming ? "" : (movieData.downloadUrl || ""),
+    hasFullMovie: Boolean(
+      movieData.hasFullMovie ||
+      (movieData.fullMovieUrl && movieData.fullMovieUrl.trim().length > 0) ||
+      (movieData.downloadUrl && movieData.downloadUrl.trim().length > 0)
+    ),
+    fullMovieUrl: movieData.fullMovieUrl ? movieData.fullMovieUrl.trim() : "",
+    downloadUrl: movieData.downloadUrl ? movieData.downloadUrl.trim() : "",
     featured: isUpcoming ? false : Boolean(movieData.featured),
     duration: movieData.duration || "2h 00m",
     director: movieData.director || "",
