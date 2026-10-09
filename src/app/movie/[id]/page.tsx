@@ -30,6 +30,7 @@ import {
   setCachedMovie,
   setCachedMovies,
 } from "@/lib/clientMovieCache";
+import { toHighResImageUrl } from "@/lib/imageResolution";
 
 export default function MovieDetailPage({
   params,
@@ -158,15 +159,17 @@ export default function MovieDetailPage({
   const status = getMovieStatus(movie);
   const isUpcoming = status === "upcoming";
 
-  const bannerUrl =
+  const rawBannerUrl =
     movie.bannerImage?.[0]?.url ||
     movie.posterImage?.[0]?.url ||
-    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80";
+    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=2560&q=95";
+  const bannerUrl = toHighResImageUrl(rawBannerUrl, "banner", movie.title);
 
-  const posterUrl =
+  const rawPosterUrl =
     movie.posterImage?.[0]?.url ||
     movie.bannerImage?.[0]?.url ||
-    "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80";
+    "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=90";
+  const posterUrl = toHighResImageUrl(rawPosterUrl, "poster", movie.title);
 
   const formattedDate = movie.releaseDate
     ? new Date(movie.releaseDate + "T00:00:00").toLocaleDateString("en-US", {
@@ -187,6 +190,8 @@ export default function MovieDetailPage({
             alt={movie.title}
             fill
             priority
+            quality={100}
+            unoptimized
             sizes="100vw"
             className="movie-detail-banner-img"
           />

@@ -23,9 +23,12 @@ import {
   AlertCircle,
   Users,
   Clapperboard,
+  Zap,
+  Check,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
+import { toHighResImageUrl, analyzeImageResolution } from "@/lib/imageResolution";
 
 const ALL_GENRES = [
   "Action",
@@ -77,6 +80,93 @@ export default function AdminMovieEditPage({
   const [screenshotUrlInput, setScreenshotUrlInput] = useState("");
   const [uploadingScreenshots, setUploadingScreenshots] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Automated Banner Resolution & Quality Enhancement
+  const [enhancingBanner, setEnhancingBanner] = useState(false);
+  const [bannerNotice, setBannerNotice] = useState<string | null>(null);
+  const [curatedBackdrops, setCuratedBackdrops] = useState<Array<{ url: string; label: string; resolution: string }>>([]);
+  const [showBackdropsPicker, setShowBackdropsPicker] = useState(false);
+
+  const bannerAnalysis = useMemo(() => {
+    return analyzeImageResolution(bannerUrl, "banner", title);
+  }, [bannerUrl, title]);
+
+  const posterAnalysis = useMemo(() => {
+    return analyzeImageResolution(posterUrl, "poster", title);
+  }, [posterUrl, title]);
+
+  // Check for curated high-res backdrops when title is present
+  useEffect(() => {
+    if (!title.trim()) return;
+    const fetchEnhanceData = async () => {
+      try {
+        const res = await fetch("/api/movies/enhance-banner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: bannerUrl, title: title.trim(), type: "banner" }),
+        });
+        const data = await res.json();
+        if (data.success && data.curatedBackdrops) {
+          setCuratedBackdrops(data.curatedBackdrops);
+        }
+      } catch {
+        // silent
+      }
+    };
+    fetchEnhanceData();
+  }, [title]);
+
+  const handleAutoEnhanceBanner = async () => {
+    if (!bannerUrl && !title) return;
+    setEnhancingBanner(true);
+    setBannerNotice(null);
+
+    try {
+      const res = await fetch("/api/movies/enhance-banner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: bannerUrl, title: title.trim(), type: "banner" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.curatedBackdrops && data.curatedBackdrops.length > 0) {
+          setCuratedBackdrops(data.curatedBackdrops);
+        }
+        if (data.enhancedUrl && data.enhancedUrl !== bannerUrl) {
+          setBannerUrl(data.enhancedUrl);
+          setBannerNotice("✨ Banner upgraded to 4K Ultra-HD resolution!");
+        } else if (data.curatedBackdrops && data.curatedBackdrops.length > 0 && !bannerUrl) {
+          setBannerUrl(data.curatedBackdrops[0].url);
+          setBannerNotice("✨ Applied official 4K master backdrop!");
+        } else {
+          setBannerNotice("✅ Banner is already at maximum available resolution!");
+        }
+      }
+    } catch {
+      const upgraded = toHighResImageUrl(bannerUrl, "banner", title);
+      if (upgraded && upgraded !== bannerUrl) {
+        setBannerUrl(upgraded);
+        setBannerNotice("✨ Upgraded to highest CDN resolution!");
+      }
+    } finally {
+      setEnhancingBanner(false);
+      setTimeout(() => setBannerNotice(null), 5000);
+    }
+  };
+
+  const handleBannerUrlChange = (val: string) => {
+    const upgraded = toHighResImageUrl(val, "banner", title);
+    setBannerUrl(upgraded);
+    if (upgraded !== val && val.trim().length > 0) {
+      setBannerNotice("⚡ Automatically boosted to high-res master!");
+      setTimeout(() => setBannerNotice(null), 4000);
+    }
+  };
+
+  const handlePosterUrlChange = (val: string) => {
+    const upgraded = toHighResImageUrl(val, "poster", title);
+    setPosterUrl(upgraded);
+  };
 
   const isUpcoming = isMovieUpcoming(releaseDate);
 
@@ -623,44 +713,349 @@ export default function AdminMovieEditPage({
             gap: "18px",
           }}
         >
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
-            <ImageIcon size={18} color="var(--primary)" />
-            <span>Poster & Backdrop Media</span>
-          </h2>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
+              <ImageIcon size={18} color="var(--primary)" />
+              <span>Poster & Backdrop Media</span>
+            </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                type="button"
+                onClick={handleAutoEnhanceBanner}
+                disabled={enhancingBanner || (!bannerUrl && !title)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(255, 75, 43, 0.15))",
+                  border: "1px solid rgba(229, 9, 20, 0.4)",
+                  color: "#ff4d5a",
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-sm)",
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  cursor: (!bannerUrl && !title) ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  opacity: (!bannerUrl && !title) ? 0.6 : 1,
+                }}
+                title="Automatically converts low-resolution banners to pristine 4K/Ultra-HD masters"
+              >
+                {enhancingBanner ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                <span>Auto-Enhance to 4K</span>
+              </button>
+
+              {curatedBackdrops.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowBackdropsPicker((prev) => !prev)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: showBackdropsPicker ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid rgba(59, 130, 246, 0.4)",
+                    color: "#60a5fa",
+                    padding: "6px 12px",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Zap size={13} />
+                  <span>{showBackdropsPicker ? "Hide Backdrops" : `Verified 4K Backdrops (${curatedBackdrops.length})`}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Banner notification banner */}
+          {bannerNotice && (
+            <div
+              style={{
+                padding: "8px 14px",
+                borderRadius: "var(--radius-sm)",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.35)",
+                color: "#34d399",
+                fontSize: "0.82rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Check size={15} />
+              <span>{bannerNotice}</span>
+            </div>
+          )}
+
+          {/* Curated 4K Backdrops Picker Drawer */}
+          {showBackdropsPicker && curatedBackdrops.length > 0 && (
+            <div
+              style={{
+                padding: "16px",
+                background: "rgba(10, 13, 20, 0.75)",
+                border: "1px solid rgba(59, 130, 246, 0.35)",
+                borderRadius: "var(--radius-sm)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#93c5fd", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Sparkles size={14} color="#60a5fa" />
+                  Verified Official 4K Masters for &quot;{title}&quot; (Click to apply):
+                </span>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>1-Click Replacement</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
+                {curatedBackdrops.map((bd, idx) => {
+                  const isSelected = bannerUrl === bd.url;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        setBannerUrl(bd.url);
+                        setBannerNotice(`✨ Applied: ${bd.label}`);
+                        setTimeout(() => setBannerNotice(null), 4000);
+                      }}
+                      style={{
+                        position: "relative",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        border: isSelected ? "2px solid #3b82f6" : "1px solid var(--border-subtle)",
+                        cursor: "pointer",
+                        background: "rgba(0, 0, 0, 0.5)",
+                        transition: "transform 0.2s, border-color 0.2s",
+                      }}
+                    >
+                      <div style={{ position: "relative", width: "100%", height: 110 }}>
+                        <Image src={bd.url} alt={bd.label} fill style={{ objectFit: "cover" }} sizes="240px" />
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 6,
+                            right: 6,
+                            background: "rgba(0, 0, 0, 0.75)",
+                            backdropFilter: "blur(4px)",
+                            color: "#34d399",
+                            fontSize: "0.68rem",
+                            fontWeight: 700,
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            border: "1px solid rgba(52, 211, 153, 0.3)",
+                          }}
+                        >
+                          {bd.resolution}
+                        </div>
+                      </div>
+                      <div style={{ padding: "8px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: isSelected ? "#60a5fa" : "var(--text-primary)" }}>
+                          {bd.label}
+                        </span>
+                        {isSelected && <Check size={14} color="#3b82f6" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "22px" }}>
+            {/* Poster URL */}
             <div>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
-                Poster Image URL (2:3 aspect ratio)
-              </label>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: 600, margin: 0 }}>
+                  Poster Image URL (2:3 aspect ratio)
+                </label>
+                {posterAnalysis.canAutoUpgrade && (
+                  <button
+                    type="button"
+                    onClick={() => setPosterUrl(posterAnalysis.suggestedUrl)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#60a5fa",
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    ⚡ Upgrade to HD
+                  </button>
+                )}
+              </div>
               <input
                 type="url"
                 value={posterUrl}
-                onChange={(e) => setPosterUrl(e.target.value)}
+                onChange={(e) => handlePosterUrlChange(e.target.value)}
                 placeholder="https://.../poster.jpg"
                 className="input-field"
               />
               {posterUrl && (
-                <div style={{ position: "relative", width: 100, height: 150, borderRadius: 8, overflow: "hidden", marginTop: "10px", border: "1px solid var(--border-subtle)" }}>
-                  <Image src={posterUrl} alt="Poster Preview" fill style={{ objectFit: "cover" }} sizes="100px" />
+                <div style={{ position: "relative", width: 110, height: 165, borderRadius: 8, overflow: "hidden", marginTop: "10px", border: "1px solid var(--border-subtle)" }}>
+                  <Image src={posterUrl} alt="Poster Preview" fill style={{ objectFit: "cover" }} sizes="110px" />
                 </div>
               )}
             </div>
 
+            {/* Backdrop Banner URL with Automated Resolution Enhancer */}
             <div>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
-                Backdrop Banner Image URL (16:9 banner)
-              </label>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: 600, margin: 0 }}>
+                  Backdrop Banner Image URL (16:9 banner)
+                </label>
+                {bannerAnalysis.canAutoUpgrade ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBannerUrl(bannerAnalysis.suggestedUrl);
+                      setBannerNotice("✨ Upgraded to 4K Ultra-HD master!");
+                      setTimeout(() => setBannerNotice(null), 4000);
+                    }}
+                    style={{
+                      background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(202, 138, 4, 0.15))",
+                      border: "1px solid rgba(234, 179, 8, 0.5)",
+                      color: "#facc15",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      padding: "2px 8px",
+                      borderRadius: "4px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Zap size={11} />
+                    <span>Auto-Upgrade to 4K</span>
+                  </button>
+                ) : bannerUrl ? (
+                  <span
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      color: "#34d399",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Check size={11} />
+                    <span>{bannerAnalysis.estimatedQuality}</span>
+                  </span>
+                ) : null}
+              </div>
+
               <input
                 type="url"
                 value={bannerUrl}
-                onChange={(e) => setBannerUrl(e.target.value)}
+                onChange={(e) => handleBannerUrlChange(e.target.value)}
                 placeholder="https://.../banner.jpg"
                 className="input-field"
               />
+
+              {/* Real-time Quality Alert if low resolution thumbnail detected */}
+              {bannerUrl && bannerAnalysis.isLowRes && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    padding: "8px 12px",
+                    background: "rgba(234, 179, 8, 0.1)",
+                    border: "1px solid rgba(234, 179, 8, 0.35)",
+                    borderRadius: "var(--radius-sm)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.78rem", color: "#facc15" }}>
+                    <AlertCircle size={14} />
+                    <span>Low quality / downscaled banner detected ({bannerAnalysis.estimatedQuality})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBannerUrl(bannerAnalysis.suggestedUrl);
+                      setBannerNotice("✨ Banner successfully upgraded to 4K Ultra-HD master!");
+                      setTimeout(() => setBannerNotice(null), 4000);
+                    }}
+                    style={{
+                      background: "linear-gradient(135deg, #eab308, #ca8a04)",
+                      border: "none",
+                      color: "#000",
+                      fontWeight: 700,
+                      fontSize: "0.72rem",
+                      padding: "4px 10px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <Sparkles size={11} />
+                    <span>Auto-Boost to 4K</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Banner Preview */}
               {bannerUrl && (
-                <div style={{ position: "relative", width: "100%", maxWidth: 220, height: 124, borderRadius: 8, overflow: "hidden", marginTop: "10px", border: "1px solid var(--border-subtle)" }}>
-                  <Image src={bannerUrl} alt="Banner Preview" fill style={{ objectFit: "cover" }} sizes="220px" />
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: 320,
+                    height: 180,
+                    borderRadius: 8,
+                    overflow: "hidden",
+                    marginTop: "10px",
+                    border: "1px solid var(--border-subtle)",
+                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.4)",
+                  }}
+                >
+                  <Image
+                    src={bannerUrl}
+                    alt="Banner Preview"
+                    fill
+                    unoptimized
+                    style={{
+                      objectFit: "cover",
+                      imageRendering: "-webkit-optimize-contrast",
+                    }}
+                    sizes="320px"
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 8,
+                      right: 8,
+                      background: "rgba(0, 0, 0, 0.8)",
+                      backdropFilter: "blur(6px)",
+                      padding: "3px 8px",
+                      borderRadius: "4px",
+                      fontSize: "0.68rem",
+                      fontWeight: 700,
+                      color: bannerAnalysis.isLowRes ? "#facc15" : "#34d399",
+                      border: bannerAnalysis.isLowRes
+                        ? "1px solid rgba(234, 179, 8, 0.4)"
+                        : "1px solid rgba(52, 211, 153, 0.4)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {bannerAnalysis.isLowRes ? <AlertCircle size={10} /> : <Check size={10} />}
+                    <span>{bannerAnalysis.estimatedQuality}</span>
+                  </div>
                 </div>
               )}
             </div>

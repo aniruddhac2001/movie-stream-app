@@ -17,9 +17,25 @@ import {
   saveMovieToRest,
   deleteMovieFromRest,
 } from "./firestoreRest";
+import { toHighResImageUrl } from "./imageResolution";
+
+export function normalizeMovieImages(m: Movie): Movie {
+  if (!m) return m;
+  return {
+    ...m,
+    bannerImage: (m.bannerImage || []).map((img) => ({
+      ...img,
+      url: toHighResImageUrl(img.url, "banner", m.title),
+    })),
+    posterImage: (m.posterImage || []).map((img) => ({
+      ...img,
+      url: toHighResImageUrl(img.url, "poster", m.title),
+    })),
+  };
+}
 
 // In-memory fallback cache seeded with initial movie data
-let fallbackMovies: Movie[] = (initialMoviesJson as Movie[]) || [];
+let fallbackMovies: Movie[] = ((initialMoviesJson as Movie[]) || []).map(normalizeMovieImages);
 
 export async function getAllMovies(): Promise<{
   movies: Movie[];
@@ -32,8 +48,8 @@ export async function getAllMovies(): Promise<{
   try {
     const restMovies = await fetchMoviesFromRest(4000);
     if (restMovies !== null && restMovies.length > 0) {
-      fallbackMovies = restMovies;
-      return { movies: restMovies, source: "firebase", firebaseStatus };
+      fallbackMovies = restMovies.map(normalizeMovieImages);
+      return { movies: fallbackMovies, source: "firebase", firebaseStatus };
     }
   } catch (err) {
     console.warn("REST fetch fallback:", err);
@@ -45,7 +61,7 @@ export async function getAllMovies(): Promise<{
     try {
       const colRef = collection(db, "movies");
       const snapshot = await getDocs(colRef);
-      const movies: Movie[] = snapshot.docs.map((d) => d.data() as Movie);
+      const movies: Movie[] = snapshot.docs.map((d) => normalizeMovieImages(d.data() as Movie));
 
       movies.sort((a, b) => {
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -73,10 +89,11 @@ export async function getMovieById(id: string): Promise<{
   try {
     const restMovie = await fetchMovieByIdFromRest(id, 3000);
     if (restMovie) {
+      const normalized = normalizeMovieImages(restMovie);
       return {
-        movie: restMovie,
-        cast: restMovie.cast || [],
-        crew: restMovie.crew || [],
+        movie: normalized,
+        cast: normalized.cast || [],
+        crew: normalized.crew || [],
         source: "firebase",
       };
     }
@@ -91,7 +108,7 @@ export async function getMovieById(id: string): Promise<{
       const docRef = doc(db, "movies", id);
       const snap = await getDoc(docRef);
       if (snap.exists()) {
-        const movie = snap.data() as Movie;
+        const movie = normalizeMovieImages(snap.data() as Movie);
         return {
           movie,
           cast: movie.cast || [],
@@ -105,10 +122,11 @@ export async function getMovieById(id: string): Promise<{
   }
 
   const found = fallbackMovies.find((m) => m.id === id);
+  const normalized = found ? normalizeMovieImages(found) : null;
   return {
-    movie: found || null,
-    cast: found?.cast || [],
-    crew: found?.crew || [],
+    movie: normalized,
+    cast: normalized?.cast || [],
+    crew: normalized?.crew || [],
     source: "memory",
   };
 }
@@ -125,8 +143,14 @@ export async function saveMovie(movieData: Partial<Movie>): Promise<{
     synopsis: movieData.synopsis || "",
     genre: movieData.genre || ["Action"],
     releaseDate: movieData.releaseDate || new Date().toISOString().split("T")[0],
-    posterImage: movieData.posterImage || [],
-    bannerImage: movieData.bannerImage || [],
+    posterImage: (movieData.posterImage || []).map((img) => ({
+      ...img,
+      url: toHighResImageUrl(img.url, "poster", movieData.title),
+    })),
+    bannerImage: (movieData.bannerImage || []).map((img) => ({
+      ...img,
+      url: toHighResImageUrl(img.url, "banner", movieData.title),
+    })),
     screenshots: movieData.screenshots || [],
     trailerUrl: movieData.trailerUrl || "",
     hasFullMovie: isUpcoming ? false : Boolean(movieData.hasFullMovie),

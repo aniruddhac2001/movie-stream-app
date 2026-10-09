@@ -890,6 +890,11 @@ button, input, textarea, select {
 .movie-detail-banner-img {
   object-fit: cover;
   object-position: center 25%;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  filter: contrast(1.02) saturate(1.03);
 }
 
 .movie-detail-banner-overlay-side {

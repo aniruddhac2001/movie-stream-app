@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Movie, getMovieStatus, isMovieUpcoming } from "@/types/movie";
 import { Play, Calendar, Film, ChevronRight, ChevronLeft } from "lucide-react";
 import { setCachedMovie } from "@/lib/clientMovieCache";
+import { toHighResImageUrl } from "@/lib/imageResolution";
 
 interface HeroSectionProps {
   movies: Movie[];
@@ -69,10 +70,11 @@ export function HeroSection({ movies }: HeroSectionProps) {
   }
 
   const currentMovie = displayMovies[currentIndex];
-  const bannerUrl =
+  const rawBannerUrl =
     currentMovie.bannerImage?.[0]?.url ||
     currentMovie.posterImage?.[0]?.url ||
-    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80";
+    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=2560&q=95";
+  const bannerUrl = toHighResImageUrl(rawBannerUrl, "banner", currentMovie.title);
 
   const status = getMovieStatus(currentMovie);
   const isUpcoming = status === "upcoming";
