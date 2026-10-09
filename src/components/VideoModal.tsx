@@ -41,9 +41,19 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
         const id = rawUrl.split("vimeo.com/")[1]?.split("?")[0];
         return `https://player.vimeo.com/video/${id}?autoplay=1`;
       }
-      if (rawUrl.includes("drive.google.com/file/d/")) {
-        const id = rawUrl.split("/d/")[1]?.split("/")[0];
-        return `https://drive.google.com/file/d/${id}/preview`;
+      if (rawUrl.includes("drive.google.com")) {
+        if (rawUrl.includes("/file/d/")) {
+          const id = rawUrl.split("/file/d/")[1]?.split("/")[0]?.split("?")[0];
+          return `https://drive.google.com/file/d/${id}/preview`;
+        }
+        if (rawUrl.includes("id=")) {
+          try {
+            const id = new URL(rawUrl).searchParams.get("id");
+            if (id) return `https://drive.google.com/file/d/${id}/preview`;
+          } catch {
+            // ignore
+          }
+        }
       }
       if (rawUrl.includes("dailymotion.com/video/")) {
         const id = rawUrl.split("/video/")[1]?.split("?")[0];

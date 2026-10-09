@@ -257,32 +257,30 @@ export function HeroSection({ movies }: HeroSectionProps) {
 
           {/* Action Buttons: Play Movie & View Details */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-            <button
-              onClick={() => {
-                if (currentMovie.fullMovieUrl) {
-                  onPlayVideo?.(currentMovie.fullMovieUrl, `${currentMovie.title} - Full Movie`);
-                } else if (
-                  currentMovie.downloadUrl &&
-                  (currentMovie.downloadUrl.includes(".mp4") ||
-                    currentMovie.downloadUrl.includes("drive.google.com") ||
-                    currentMovie.downloadUrl.includes("stream") ||
-                    currentMovie.downloadUrl.includes("embed") ||
-                    currentMovie.downloadUrl.includes("youtube") ||
-                    currentMovie.downloadUrl.includes("youtu.be"))
-                ) {
-                  onPlayVideo?.(currentMovie.downloadUrl, `${currentMovie.title} - Full Movie`);
-                } else if (currentMovie.trailerUrl) {
-                  onPlayVideo?.(currentMovie.trailerUrl, `${currentMovie.title} - Official Trailer`);
-                } else {
-                  window.location.href = `/movie/${currentMovie.id}`;
-                }
-              }}
-              className="btn-play-movie"
-              title={`Play ${currentMovie.title}`}
-            >
-              <Play size={16} fill="#ffffff" stroke="#ffffff" />
-              <span>Play Movie</span>
-            </button>
+            {(() => {
+              const isDrive = (url?: string) =>
+                Boolean(url && (url.includes("drive.google.com") || url.includes("/preview") || url.includes("google.com/file")));
+
+              const streamLink =
+                (currentMovie.fullMovieUrl && currentMovie.fullMovieUrl.trim().length > 0 ? currentMovie.fullMovieUrl.trim() : "") ||
+                (isDrive(currentMovie.downloadUrl) ? (currentMovie.downloadUrl?.trim() || "") : "") ||
+                (currentMovie.hasFullMovie && currentMovie.downloadUrl && (currentMovie.downloadUrl.includes(".mp4") || currentMovie.downloadUrl.includes(".webm")) ? (currentMovie.downloadUrl?.trim() || "") : "");
+
+              if (!streamLink) return null;
+
+              return (
+                <button
+                  onClick={() => {
+                    onPlayVideo?.(streamLink, `${currentMovie.title} - Full Movie`);
+                  }}
+                  className="btn-play-movie"
+                  title={`Play ${currentMovie.title}`}
+                >
+                  <Play size={16} fill="#ffffff" stroke="#ffffff" />
+                  <span>Play Movie</span>
+                </button>
+              );
+            })()}
 
             <Link
               href={`/movie/${currentMovie.id}`}

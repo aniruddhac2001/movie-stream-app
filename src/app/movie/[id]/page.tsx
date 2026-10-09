@@ -347,34 +347,31 @@ export default function MovieDetailPage({
                 marginBottom: "32px",
               }}
             >
-              {/* Primary: Play Movie Button */}
-              <button
-                onClick={() => {
-                  if (movie.fullMovieUrl) {
-                    playVideo(movie.fullMovieUrl, `${movie.title} - Full Movie`);
-                  } else if (
-                    movie.downloadUrl &&
-                    (movie.downloadUrl.includes(".mp4") ||
-                      movie.downloadUrl.includes(".webm") ||
-                      movie.downloadUrl.includes("drive.google.com") ||
-                      movie.downloadUrl.includes("stream") ||
-                      movie.downloadUrl.includes("embed") ||
-                      movie.downloadUrl.includes("youtube") ||
-                      movie.downloadUrl.includes("youtu.be"))
-                  ) {
-                    playVideo(movie.downloadUrl, `${movie.title} - Full Movie`);
-                  } else if (movie.trailerUrl) {
-                    playVideo(movie.trailerUrl, `${movie.title} - Official Preview`);
-                  } else {
-                    alert("Online playback stream will be available shortly.");
-                  }
-                }}
-                className="btn-play-movie"
-                title={`Play ${movie.title} on website`}
-              >
-                <Play size={18} fill="#ffffff" stroke="#ffffff" />
-                <span>Play Movie</span>
-              </button>
+              {/* Primary: Play Movie Button — ONLY displayed when movie stream link (e.g. Google Drive) is uploaded in CineNova management */}
+              {(() => {
+                const isDrive = (url?: string) =>
+                  Boolean(url && (url.includes("drive.google.com") || url.includes("/preview") || url.includes("google.com/file")));
+
+                const streamLink =
+                  (movie.fullMovieUrl && movie.fullMovieUrl.trim().length > 0 ? movie.fullMovieUrl.trim() : "") ||
+                  (isDrive(movie.downloadUrl) ? (movie.downloadUrl?.trim() || "") : "") ||
+                  (movie.hasFullMovie && movie.downloadUrl && (movie.downloadUrl.includes(".mp4") || movie.downloadUrl.includes(".webm")) ? (movie.downloadUrl?.trim() || "") : "");
+
+                if (!streamLink) return null;
+
+                return (
+                  <button
+                    onClick={() => {
+                      playVideo(streamLink, `${movie.title} - Full Movie`);
+                    }}
+                    className="btn-play-movie"
+                    title={`Play ${movie.title} on website`}
+                  >
+                    <Play size={18} fill="#ffffff" stroke="#ffffff" />
+                    <span>Play Movie</span>
+                  </button>
+                );
+              })()}
 
               {/* Secondary: Watch Trailer */}
               {movie.trailerUrl && (
