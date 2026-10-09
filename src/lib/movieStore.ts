@@ -152,6 +152,7 @@ export async function saveMovie(movieData: Partial<Movie>): Promise<{
       url: toHighResImageUrl(img.url, "banner", movieData.title),
     })),
     screenshots: movieData.screenshots || [],
+    trailerUrl: movieData.trailerUrl ? movieData.trailerUrl.trim() : "",
     hasFullMovie: Boolean(
       movieData.hasFullMovie ||
       (movieData.fullMovieUrl && movieData.fullMovieUrl.trim().length > 0) ||
