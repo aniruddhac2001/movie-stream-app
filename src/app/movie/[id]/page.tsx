@@ -198,26 +198,6 @@ export default function MovieDetailPage({
           {/* Seamless Cinematic Gradient Overlays matching Screenshot 2 */}
           <div className="movie-detail-banner-overlay-side" />
           <div className="movie-detail-banner-overlay-top" />
-
-          {/* Floating Cinema Play Overlay Button on Banner */}
-          {(movie.fullMovieUrl || movie.trailerUrl || movie.downloadUrl) && (
-            <button
-              onClick={() => {
-                if (movie.fullMovieUrl) {
-                  playVideo(movie.fullMovieUrl, `${movie.title} - Full Movie`);
-                } else if (movie.downloadUrl && (movie.downloadUrl.includes(".mp4") || movie.downloadUrl.includes("drive.google.com") || movie.downloadUrl.includes("stream") || movie.downloadUrl.includes("embed") || movie.downloadUrl.includes("youtube") || movie.downloadUrl.includes("youtu.be"))) {
-                  playVideo(movie.downloadUrl, `${movie.title} - Full Movie`);
-                } else if (movie.trailerUrl) {
-                  playVideo(movie.trailerUrl, `${movie.title} - Official Preview`);
-                }
-              }}
-              className="banner-play-overlay"
-              title={`Play ${movie.title}`}
-              aria-label={`Play ${movie.title}`}
-            >
-              <Play size={28} fill="#ffffff" stroke="#ffffff" style={{ marginLeft: "4px" }} />
-            </button>
-          )}
         </div>
 
         {/* Back Button */}

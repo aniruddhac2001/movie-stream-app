@@ -535,32 +535,6 @@ button, input, textarea, select {
   box-shadow: 0 8px 25px rgba(229, 9, 20, 0.65);
 }
 
-.banner-play-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: rgba(229, 9, 20, 0.85);
-  backdrop-filter: blur(8px);
-  border: 2.5px solid rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 15;
-  box-shadow: 0 0 35px rgba(229, 9, 20, 0.7);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.banner-play-overlay:hover {
-  transform: translate(-50%, -50%) scale(1.12);
-  background: #e50914;
-  box-shadow: 0 0 50px rgba(229, 9, 20, 0.95);
-}
-
 /* Animations */
 @keyframes pulseGlow {
   0%, 100% {
