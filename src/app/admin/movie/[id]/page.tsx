@@ -25,10 +25,12 @@ import {
   Clapperboard,
   Zap,
   Check,
+  Play,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
 import { toHighResImageUrl, analyzeImageResolution } from "@/lib/imageResolution";
+import { useVideo } from "@/context/VideoContext";
 
 const ALL_GENRES = [
   "Action",
@@ -52,6 +54,7 @@ export default function AdminMovieEditPage({
   const movieId = resolvedParams.id;
   const isNew = movieId === "new";
   const router = useRouter();
+  const { playVideo } = useVideo();
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -69,6 +72,7 @@ export default function AdminMovieEditPage({
   const [bannerUrl, setBannerUrl] = useState("");
   const [trailerUrl, setTrailerUrl] = useState("");
   const [hasFullMovie, setHasFullMovie] = useState(false);
+  const [fullMovieUrl, setFullMovieUrl] = useState("");
   const [downloadUrl, setDownloadUrl] = useState("");
   const [featured, setFeatured] = useState(false);
   const [enableRating, setEnableRating] = useState(false);
@@ -184,6 +188,7 @@ export default function AdminMovieEditPage({
       bannerUrl: bannerUrl.trim(),
       trailerUrl: trailerUrl.trim(),
       hasFullMovie: isUpcoming ? false : hasFullMovie,
+      fullMovieUrl: isUpcoming ? "" : fullMovieUrl.trim(),
       downloadUrl: isUpcoming ? "" : downloadUrl.trim(),
       featured: isUpcoming ? false : featured,
       enableRating,
@@ -217,6 +222,7 @@ export default function AdminMovieEditPage({
     bannerUrl,
     trailerUrl,
     hasFullMovie,
+    fullMovieUrl,
     downloadUrl,
     featured,
     enableRating,
@@ -254,6 +260,7 @@ export default function AdminMovieEditPage({
             const trail = m.trailerUrl || "";
             const upcoming = isMovieUpcoming(rel);
             const fullMov = upcoming ? false : Boolean(m.hasFullMovie);
+            const fullMovUrl = upcoming ? "" : (m.fullMovieUrl || "");
             const dl = upcoming ? "" : (m.downloadUrl || "");
             const feat = upcoming ? false : Boolean(m.featured);
             const enRating = typeof m.rating === "number" && !isNaN(m.rating);
@@ -271,6 +278,7 @@ export default function AdminMovieEditPage({
             setBannerUrl(ban);
             setTrailerUrl(trail);
             setHasFullMovie(fullMov);
+            setFullMovieUrl(fullMovUrl);
             setDownloadUrl(dl);
             setFeatured(feat);
             setEnableRating(enRating);
@@ -291,6 +299,7 @@ export default function AdminMovieEditPage({
                 bannerUrl: ban.trim(),
                 trailerUrl: trail.trim(),
                 hasFullMovie: fullMov,
+                fullMovieUrl: fullMovUrl.trim(),
                 downloadUrl: dl.trim(),
                 featured: feat,
                 enableRating: enRating,
@@ -421,6 +430,7 @@ export default function AdminMovieEditPage({
       bannerImage: bannerUrl ? [{ url: bannerUrl.trim() }] : [],
       trailerUrl: trailerUrl.trim(),
       hasFullMovie: isUpcoming ? false : hasFullMovie,
+      fullMovieUrl: isUpcoming ? "" : (hasFullMovie ? fullMovieUrl.trim() : ""),
       downloadUrl: isUpcoming ? "" : (hasFullMovie ? downloadUrl.trim() : ""),
       featured: isUpcoming ? false : featured,
       duration: duration.trim(),
@@ -1367,17 +1377,62 @@ export default function AdminMovieEditPage({
             )}
 
             {!isUpcoming && hasFullMovie && (
-              <div style={{ marginTop: "6px" }}>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, marginBottom: "6px" }}>
-                  Download / Stream File Link
-                </label>
-                <input
-                  type="url"
-                  value={downloadUrl}
-                  onChange={(e) => setDownloadUrl(e.target.value)}
-                  placeholder="https://... direct link or cloud mirror"
-                  className="input-field"
-                />
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "8px" }}>
+                {/* 1. Online Video Stream URL for the Website Player */}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, margin: 0, display: "flex", alignItems: "center", gap: "6px" }}>
+                      <Play size={14} color="var(--primary)" />
+                      <span>Online Movie Stream URL (Watch on Website)</span>
+                    </label>
+                    {fullMovieUrl && (
+                      <button
+                        type="button"
+                        onClick={() => playVideo(fullMovieUrl, `${title || "Movie"} - Stream Preview`)}
+                        style={{
+                          background: "rgba(229, 9, 20, 0.15)",
+                          border: "1px solid rgba(229, 9, 20, 0.35)",
+                          color: "#ff4d5a",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <Play size={11} fill="#ff4d5a" />
+                        <span>Test Play Stream</span>
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="url"
+                    value={fullMovieUrl}
+                    onChange={(e) => setFullMovieUrl(e.target.value)}
+                    placeholder="https://... MP4, YouTube, Vimeo, Google Drive, or Web Stream Player URL"
+                    className="input-field"
+                  />
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px", display: "block" }}>
+                    This URL enables the primary <strong>&quot;Play Movie&quot;</strong> button to stream the video directly inside the CineNova cinema player.
+                  </span>
+                </div>
+
+                {/* 2. Download Mirror Link */}
+                <div>
+                  <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 600, marginBottom: "6px" }}>
+                    Download Mirror / Cloud Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={downloadUrl}
+                    onChange={(e) => setDownloadUrl(e.target.value)}
+                    placeholder="https://... HubCloud, Google Drive, or external download link"
+                    className="input-field"
+                  />
+                </div>
               </div>
             )}
           </div>

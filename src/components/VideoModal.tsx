@@ -20,7 +20,7 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
 
   if (!url) return null;
 
-  // Format embed url for YouTube / Vimeo
+  // Format embed url for YouTube / Vimeo / Google Drive / Dailymotion
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     try {
@@ -41,16 +41,35 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
         const id = rawUrl.split("vimeo.com/")[1]?.split("?")[0];
         return `https://player.vimeo.com/video/${id}?autoplay=1`;
       }
+      if (rawUrl.includes("drive.google.com/file/d/")) {
+        const id = rawUrl.split("/d/")[1]?.split("/")[0];
+        return `https://drive.google.com/file/d/${id}/preview`;
+      }
+      if (rawUrl.includes("dailymotion.com/video/")) {
+        const id = rawUrl.split("/video/")[1]?.split("?")[0];
+        return `https://www.dailymotion.com/embed/video/${id}?autoplay=1`;
+      }
     } catch {
       // Fallback
     }
     return rawUrl;
   };
 
+  const isDirectVideo =
+    /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url) ||
+    url.startsWith("blob:") ||
+    url.startsWith("data:video");
+
   const isEmbed =
-    url.includes("youtube.com") ||
-    url.includes("youtu.be") ||
-    url.includes("vimeo.com");
+    !isDirectVideo &&
+    (url.includes("youtube.com") ||
+      url.includes("youtu.be") ||
+      url.includes("vimeo.com") ||
+      url.includes("drive.google.com") ||
+      url.includes("dailymotion.com") ||
+      url.includes("/embed") ||
+      url.includes("player"));
+
   const embedSrc = getEmbedUrl(url);
 
   return (

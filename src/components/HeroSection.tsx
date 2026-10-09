@@ -255,30 +255,56 @@ export function HeroSection({ movies }: HeroSectionProps) {
               "An ancient epic follows a young prince and princess whose marriage and subsequent exile mark the beginning of a legendary..."}
           </p>
 
-          {/* Single Red Button: View Details matching Screenshot 1 */}
-          <div>
+          {/* Action Buttons: Play Movie & View Details */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                if (currentMovie.fullMovieUrl) {
+                  onPlayVideo?.(currentMovie.fullMovieUrl, `${currentMovie.title} - Full Movie`);
+                } else if (
+                  currentMovie.downloadUrl &&
+                  (currentMovie.downloadUrl.includes(".mp4") ||
+                    currentMovie.downloadUrl.includes("drive.google.com") ||
+                    currentMovie.downloadUrl.includes("stream") ||
+                    currentMovie.downloadUrl.includes("embed") ||
+                    currentMovie.downloadUrl.includes("youtube") ||
+                    currentMovie.downloadUrl.includes("youtu.be"))
+                ) {
+                  onPlayVideo?.(currentMovie.downloadUrl, `${currentMovie.title} - Full Movie`);
+                } else if (currentMovie.trailerUrl) {
+                  onPlayVideo?.(currentMovie.trailerUrl, `${currentMovie.title} - Official Trailer`);
+                } else {
+                  window.location.href = `/movie/${currentMovie.id}`;
+                }
+              }}
+              className="btn-play-movie"
+              title={`Play ${currentMovie.title}`}
+            >
+              <Play size={16} fill="#ffffff" stroke="#ffffff" />
+              <span>Play Movie</span>
+            </button>
+
             <Link
               href={`/movie/${currentMovie.id}`}
               prefetch={true}
               onMouseEnter={() => setCachedMovie(currentMovie)}
               onPointerDown={() => setCachedMovie(currentMovie)}
               onClick={() => setCachedMovie(currentMovie)}
-              className="btn-download-movie"
+              className="btn-secondary"
               style={{
                 textDecoration: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                padding: "9px 22px",
+                padding: "9px 20px",
                 borderRadius: "8px",
                 fontSize: "0.92rem",
                 fontWeight: 600,
-                background: "#ef4444",
+                background: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
                 color: "#ffffff",
-                boxShadow: "0 4px 15px rgba(239, 68, 68, 0.35)",
               }}
             >
-              <Play size={14} fill="none" stroke="currentColor" strokeWidth={2.4} />
               <span>View Details</span>
             </Link>
           </div>

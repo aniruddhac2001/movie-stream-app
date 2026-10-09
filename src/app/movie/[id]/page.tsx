@@ -198,6 +198,26 @@ export default function MovieDetailPage({
           {/* Seamless Cinematic Gradient Overlays matching Screenshot 2 */}
           <div className="movie-detail-banner-overlay-side" />
           <div className="movie-detail-banner-overlay-top" />
+
+          {/* Floating Cinema Play Overlay Button on Banner */}
+          {(movie.fullMovieUrl || movie.trailerUrl || movie.downloadUrl) && (
+            <button
+              onClick={() => {
+                if (movie.fullMovieUrl) {
+                  playVideo(movie.fullMovieUrl, `${movie.title} - Full Movie`);
+                } else if (movie.downloadUrl && (movie.downloadUrl.includes(".mp4") || movie.downloadUrl.includes("drive.google.com") || movie.downloadUrl.includes("stream") || movie.downloadUrl.includes("embed") || movie.downloadUrl.includes("youtube") || movie.downloadUrl.includes("youtu.be"))) {
+                  playVideo(movie.downloadUrl, `${movie.title} - Full Movie`);
+                } else if (movie.trailerUrl) {
+                  playVideo(movie.trailerUrl, `${movie.title} - Official Preview`);
+                }
+              }}
+              className="banner-play-overlay"
+              title={`Play ${movie.title}`}
+              aria-label={`Play ${movie.title}`}
+            >
+              <Play size={28} fill="#ffffff" stroke="#ffffff" style={{ marginLeft: "4px" }} />
+            </button>
+          )}
         </div>
 
         {/* Back Button */}
@@ -347,21 +367,50 @@ export default function MovieDetailPage({
                 marginBottom: "32px",
               }}
             >
+              {/* Primary: Play Movie Button */}
               <button
                 onClick={() => {
-                  if (movie.trailerUrl) {
-                    playVideo(movie.trailerUrl, `${movie.title} - Official Trailer`);
+                  if (movie.fullMovieUrl) {
+                    playVideo(movie.fullMovieUrl, `${movie.title} - Full Movie`);
+                  } else if (
+                    movie.downloadUrl &&
+                    (movie.downloadUrl.includes(".mp4") ||
+                      movie.downloadUrl.includes(".webm") ||
+                      movie.downloadUrl.includes("drive.google.com") ||
+                      movie.downloadUrl.includes("stream") ||
+                      movie.downloadUrl.includes("embed") ||
+                      movie.downloadUrl.includes("youtube") ||
+                      movie.downloadUrl.includes("youtu.be"))
+                  ) {
+                    playVideo(movie.downloadUrl, `${movie.title} - Full Movie`);
+                  } else if (movie.trailerUrl) {
+                    playVideo(movie.trailerUrl, `${movie.title} - Official Preview`);
                   } else {
-                    alert("Trailer is not yet available for this title.");
+                    alert("Online playback stream will be available shortly.");
                   }
                 }}
-                className="btn-watch-trailer"
-                title="Watch Trailer"
+                className="btn-play-movie"
+                title={`Play ${movie.title} on website`}
               >
-                <Play size={16} fill="none" stroke="currentColor" strokeWidth={2.4} />
-                <span>Watch Trailer</span>
+                <Play size={18} fill="#ffffff" stroke="#ffffff" />
+                <span>Play Movie</span>
               </button>
 
+              {/* Secondary: Watch Trailer */}
+              {movie.trailerUrl && (
+                <button
+                  onClick={() => {
+                    playVideo(movie.trailerUrl, `${movie.title} - Official Trailer`);
+                  }}
+                  className="btn-watch-trailer"
+                  title="Watch Official Trailer"
+                >
+                  <Film size={16} strokeWidth={2.4} />
+                  <span>Watch Trailer</span>
+                </button>
+              )}
+
+              {/* Status or Download */}
               {status === "upcoming" ? (
                 <div
                   style={{
@@ -394,24 +443,23 @@ export default function MovieDetailPage({
                   <Clock size={16} style={{ opacity: 0.9 }} />
                   <span>Available Soon — Movie Link Arriving Shortly</span>
                 </div>
-              ) : (
+              ) : movie.downloadUrl ? (
                 <button
                   onClick={() => {
-                    if (movie.downloadUrl) {
-                      window.open(movie.downloadUrl, "_blank");
-                    } else if (movie.fullMovieUrl) {
-                      playVideo(movie.fullMovieUrl, movie.title);
-                    } else {
-                      alert("Download link will be available shortly.");
-                    }
+                    window.open(movie.downloadUrl, "_blank");
                   }}
                   className="btn-download-movie"
                   title="Download Movie"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.08)",
+                    border: "1px solid rgba(255, 255, 255, 0.16)",
+                    color: "#e2e8f0",
+                  }}
                 >
                   <Download size={16} strokeWidth={2.4} />
-                  <span>Download Movie</span>
+                  <span>Download</span>
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
