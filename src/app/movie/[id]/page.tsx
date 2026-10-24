@@ -272,13 +272,14 @@ export default function MovieDetailPage({
             {/* 2. Bold Movie Title */}
             <h1
               style={{
-                fontSize: "clamp(1.5rem, 2.6vw, 2.1rem)",
+                fontSize: "clamp(1.5rem, 2.6vw, 2.2rem)",
                 fontWeight: 800,
                 color: "#ffffff",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.18,
                 marginTop: "8px",
                 marginBottom: "10px",
+                textShadow: "0 2px 16px rgba(0, 0, 0, 0.95), 0 4px 32px rgba(0, 0, 0, 0.9)",
               }}
             >
               {movie.title}
@@ -293,6 +294,7 @@ export default function MovieDetailPage({
                 flexWrap: "wrap",
                 gap: "8px",
                 marginBottom: "18px",
+                textShadow: "0 1px 8px rgba(0, 0, 0, 0.9)",
               }}
             >
               {Array.isArray(movie.genre)
@@ -308,16 +310,17 @@ export default function MovieDetailPage({
               {formattedDate && (
                 <span
                   style={{
-                    color: "#9ca3af",
+                    color: "#cbd5e1",
                     fontSize: "0.85rem",
                     fontWeight: 500,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
                     marginLeft: "4px",
+                    textShadow: "0 1px 8px rgba(0, 0, 0, 0.9)",
                   }}
                 >
-                  <Calendar size={15} style={{ opacity: 0.8 }} />
+                  <Calendar size={15} style={{ opacity: 0.9 }} />
                   <span>{formattedDate}</span>
                 </span>
               )}
@@ -326,11 +329,13 @@ export default function MovieDetailPage({
             {/* 4. Movie Synopsis / Overview Paragraph */}
             <p
               style={{
-                color: "#cbd5e1",
-                fontSize: "0.96rem",
-                lineHeight: 1.68,
+                color: "#f1f5f9",
+                fontSize: "0.98rem",
+                lineHeight: 1.7,
                 maxWidth: "760px",
                 marginBottom: "24px",
+                textShadow: "0 1px 10px rgba(0, 0, 0, 0.95), 0 2px 20px rgba(0, 0, 0, 0.9)",
+                fontWeight: 400,
               }}
             >
               {movie.synopsis || "No description provided for this title."}

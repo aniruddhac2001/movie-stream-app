@@ -128,7 +128,7 @@ export function HeroSection({ movies, onPlayVideo }: HeroSectionProps) {
           sizes="100vw"
           style={{
             objectFit: "cover",
-            objectPosition: "center 25%",
+            objectPosition: "82% center",
           }}
         />
 
@@ -138,7 +138,7 @@ export function HeroSection({ movies, onPlayVideo }: HeroSectionProps) {
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(to right, rgba(7, 8, 12, 0.95) 0%, rgba(7, 8, 12, 0.82) 45%, rgba(7, 8, 12, 0.15) 100%)",
+              "linear-gradient(to right, rgba(7, 8, 12, 1) 0%, rgba(7, 8, 12, 0.98) 28%, rgba(7, 8, 12, 0.92) 48%, rgba(7, 8, 12, 0.72) 66%, rgba(7, 8, 12, 0.25) 84%, transparent 100%)",
           }}
         />
         <div

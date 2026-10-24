@@ -906,30 +906,44 @@ button, input, textarea, select {
   position: absolute;
   inset: 0;
   z-index: 1;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0.85) 68%, rgba(0, 0, 0, 0.4) 85%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0.85) 68%, rgba(0, 0, 0, 0.4) 85%, rgba(0, 0, 0, 0) 100%);
 }
 
 .movie-detail-banner-img {
   object-fit: cover;
-  object-position: center 25%;
+  object-position: 82% center;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: high-quality;
   transform: translateZ(0);
   backface-visibility: hidden;
-  filter: contrast(1.02) saturate(1.03);
+  filter: contrast(1.03) saturate(1.05);
 }
 
 .movie-detail-banner-overlay-side {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(7, 8, 12, 0.96) 0%, rgba(7, 8, 12, 0.88) 42%, rgba(7, 8, 12, 0.45) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(7, 8, 12, 1) 0%,
+    rgba(7, 8, 12, 0.98) 28%,
+    rgba(7, 8, 12, 0.92) 48%,
+    rgba(7, 8, 12, 0.72) 66%,
+    rgba(7, 8, 12, 0.28) 84%,
+    transparent 100%
+  );
 }
 
 .movie-detail-banner-overlay-top {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.6) 35%, transparent 70%);
+  background: linear-gradient(
+    to top,
+    rgba(7, 8, 12, 1) 0%,
+    rgba(7, 8, 12, 0.75) 25%,
+    rgba(7, 8, 12, 0.3) 55%,
+    transparent 80%
+  );
 }
 
 .movie-detail-back-container {
@@ -942,13 +956,27 @@ button, input, textarea, select {
 .hero-overlay-side {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(7, 8, 12, 0.95) 0%, rgba(7, 8, 12, 0.82) 45%, rgba(7, 8, 12, 0.15) 100%);
+  background: linear-gradient(
+    to right,
+    rgba(7, 8, 12, 1) 0%,
+    rgba(7, 8, 12, 0.98) 28%,
+    rgba(7, 8, 12, 0.92) 48%,
+    rgba(7, 8, 12, 0.72) 66%,
+    rgba(7, 8, 12, 0.25) 84%,
+    transparent 100%
+  );
 }
 
 .hero-overlay-top {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.6) 35%, transparent 70%);
+  background: linear-gradient(
+    to top,
+    rgba(7, 8, 12, 1) 0%,
+    rgba(7, 8, 12, 0.8) 25%,
+    rgba(7, 8, 12, 0.35) 55%,
+    transparent 80%
+  );
 }
 
 /* Mobile: Perfectly Showcase Banner at Top */
