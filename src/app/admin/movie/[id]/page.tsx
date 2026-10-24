@@ -625,7 +625,15 @@ export default function AdminMovieEditPage({
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setHasManualBannerEdit(false);
+              }}
+              onBlur={() => {
+                if (title.trim().length > 1) {
+                  executeFetchBackdrops(title, true);
+                }
+              }}
               placeholder="e.g. Ramayana - Part 1"
               required
               className="input-field"
@@ -832,10 +840,18 @@ export default function AdminMovieEditPage({
                 <span>Auto-Enhance to 4K</span>
               </button>
 
-              {curatedBackdrops.length > 0 && (
+              {title.trim().length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setShowBackdropsPicker((prev) => !prev)}
+                  onClick={() => {
+                    if (curatedBackdrops.length === 0) {
+                      executeFetchBackdrops(title, true);
+                      setShowBackdropsPicker(true);
+                    } else {
+                      setShowBackdropsPicker((prev) => !prev);
+                    }
+                  }}
+                  disabled={fetchingBackdrops}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -850,8 +866,16 @@ export default function AdminMovieEditPage({
                     cursor: "pointer",
                   }}
                 >
-                  <Zap size={13} />
-                  <span>{showBackdropsPicker ? "Hide Backdrops" : `Verified 4K Backdrops (${curatedBackdrops.length})`}</span>
+                  {fetchingBackdrops ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}
+                  <span>
+                    {fetchingBackdrops
+                      ? "Fetching 4K Backdrops..."
+                      : showBackdropsPicker
+                      ? "Hide Backdrops"
+                      : curatedBackdrops.length > 0
+                      ? `Verified 4K Backdrops (${curatedBackdrops.length})`
+                      : "Find 4K Backdrops"}
+                  </span>
                 </button>
               )}
             </div>
