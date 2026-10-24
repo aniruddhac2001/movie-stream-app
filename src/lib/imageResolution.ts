@@ -26,11 +26,14 @@ export function toHighResImageUrl(
   let cleanUrl = url.trim();
   if (!cleanUrl) return "";
 
-  // 1. If it's a known movie title and the existing URL is a known low-res scrap (like The Hindu 1200px news scrap)
+  // 1. If it's a known movie title and the existing URL is a known low-res scrap
   if (movieTitle && type === "banner") {
     const norm = movieTitle.toLowerCase().trim();
-    if (KNOWN_TITLE_HD_BANNERS[norm]) {
+    const cleanNorm = norm.replace(/[:\-–—_|/\\()]/g, " ").replace(/\b(part\s*\d+|chapter\s*\d+|vol\s*\d+)\b/gi, "").trim();
+    if (KNOWN_TITLE_HD_BANNERS[norm] || KNOWN_TITLE_HD_BANNERS[cleanNorm] || norm.includes("ramayana")) {
       if (
+        cleanUrl.includes("worldoframayana") ||
+        cleanUrl.includes("world-of-ramayan") ||
         cleanUrl.includes("th-i.thgim.com") ||
         cleanUrl.includes("FREE_1200") ||
         cleanUrl.includes("article70791353") ||
@@ -38,7 +41,7 @@ export function toHighResImageUrl(
         cleanUrl.includes("w=400") ||
         cleanUrl.includes("s320")
       ) {
-        return KNOWN_TITLE_HD_BANNERS[norm];
+        return "https://images.ctfassets.net/3sjsytt3tkv5/1r5I3Vo3KGNk4VKbH9j4WN/6efdfa1cbe79d5fc4d2b8ee76f6bdcca/YT_Final_cover.png";
       }
     }
   }
