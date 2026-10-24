@@ -119,7 +119,7 @@ export default function AdminPage() {
 
   if (checkingAuth || !isAuthenticated) {
     return (
-      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "72px" }}>
         <div className="skeleton-shimmer" style={{ width: "200px", height: "30px", borderRadius: "8px" }} />
       </div>
     );
@@ -132,7 +132,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="container" style={{ paddingTop: "40px", paddingBottom: "80px" }}>
+    <div className="container" style={{ paddingTop: "100px", paddingBottom: "80px" }}>
       {/* Top Header */}
       <div
         style={{

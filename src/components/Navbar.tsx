@@ -116,12 +116,14 @@ export function Navbar() {
         left: 0,
         right: 0,
         zIndex: 50,
-        transition: "background var(--transition-normal), box-shadow var(--transition-normal)",
-        background: isScrolled ? "rgba(7, 8, 12, 0.55)" : "rgba(7, 8, 12, 0.2)",
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-        boxShadow: isScrolled ? "0 10px 30px rgba(0, 0, 0, 0.4)" : "none",
+        transition: "background var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal)",
+        background: isScrolled
+          ? "rgba(7, 8, 12, 0.85)"
+          : "linear-gradient(to bottom, rgba(7, 8, 12, 0.6) 0%, rgba(7, 8, 12, 0.2) 60%, transparent 100%)",
+        backdropFilter: isScrolled ? "blur(20px) saturate(180%)" : "blur(12px) saturate(140%)",
+        WebkitBackdropFilter: isScrolled ? "blur(20px) saturate(180%)" : "blur(12px) saturate(140%)",
+        borderBottom: isScrolled ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent",
+        boxShadow: isScrolled ? "0 10px 30px rgba(0, 0, 0, 0.5)" : "none",
       }}
     >
       <div

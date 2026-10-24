@@ -58,8 +58,8 @@ export default function RootLayout({
               <Navbar />
             </Suspense>
 
-            {/* Main Content Area */}
-            <main style={{ minHeight: "calc(100vh - 72px)", paddingTop: "72px" }}>
+            {/* Main Content Area - Full height so hero banners extend behind transparent fixed navbar */}
+            <main style={{ minHeight: "100vh" }}>
               {children}
             </main>
 

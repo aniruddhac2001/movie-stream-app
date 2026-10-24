@@ -519,7 +519,7 @@ export default function AdminMovieEditPage({
 
   if (loading) {
     return (
-      <div className="container" style={{ paddingTop: "60px", maxWidth: "800px" }}>
+      <div className="container" style={{ paddingTop: "100px", maxWidth: "800px" }}>
         <div className="skeleton-shimmer" style={{ height: "40px", width: "200px", marginBottom: "30px" }} />
         <div className="skeleton-shimmer" style={{ height: "400px", borderRadius: "14px" }} />
       </div>
@@ -527,7 +527,7 @@ export default function AdminMovieEditPage({
   }
 
   return (
-    <div className="container" style={{ paddingTop: "40px", paddingBottom: "80px", maxWidth: "880px" }}>
+    <div className="container" style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "880px" }}>
       {/* Top Header */}
       <div style={{ marginBottom: "28px" }}>
         <Link

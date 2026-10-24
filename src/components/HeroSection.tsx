@@ -99,12 +99,13 @@ export function HeroSection({ movies, onPlayVideo }: HeroSectionProps) {
       onMouseLeave={() => setIsPaused(false)}
       style={{
         position: "relative",
-        height: "54vh",
-        minHeight: "400px",
-        maxHeight: "500px",
+        height: "58vh",
+        minHeight: "460px",
+        maxHeight: "560px",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
+        paddingTop: "72px",
       }}
     >
       {/* Background Banner with Crossfade & Ambient Glow */}
