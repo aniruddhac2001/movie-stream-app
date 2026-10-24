@@ -91,6 +91,9 @@ export default function AdminMovieEditPage({
 
   // Automated Banner Resolution & Quality Enhancement
   const [enhancingBanner, setEnhancingBanner] = useState(false);
+  const [fetchingBackdrops, setFetchingBackdrops] = useState(false);
+  const [hasManualBannerEdit, setHasManualBannerEdit] = useState(false);
+  const lastFetchedTitleRef = useRef<string>("");
   const [bannerNotice, setBannerNotice] = useState<string | null>(null);
   const [curatedBackdrops, setCuratedBackdrops] = useState<Array<{ url: string; label: string; resolution: string }>>([]);
   const [showBackdropsPicker, setShowBackdropsPicker] = useState(false);
@@ -114,25 +117,47 @@ export default function AdminMovieEditPage({
     );
   }, [fullMovieUrl]);
 
-  // Check for curated high-res backdrops when title is present
-  useEffect(() => {
-    if (!title.trim()) return;
-    const fetchEnhanceData = async () => {
-      try {
-        const res = await fetch("/api/movies/enhance-banner", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: bannerUrl, title: title.trim(), type: "banner" }),
-        });
-        const data = await res.json();
-        if (data.success && data.curatedBackdrops) {
-          setCuratedBackdrops(data.curatedBackdrops);
+  const executeFetchBackdrops = async (targetTitle: string, forceApply: boolean = false) => {
+    const trimmedTitle = targetTitle.trim();
+    if (!trimmedTitle || trimmedTitle.length < 2) return;
+
+    setFetchingBackdrops(true);
+    try {
+      const res = await fetch("/api/movies/enhance-banner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: bannerUrl, title: trimmedTitle, type: "banner" }),
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.curatedBackdrops) && data.curatedBackdrops.length > 0) {
+        setCuratedBackdrops(data.curatedBackdrops);
+        // Automatically apply the top official 4K banner if not yet filled, or forceApply, or banner wasn't manually typed
+        if (forceApply || !bannerUrl.trim() || !hasManualBannerEdit) {
+          const topBackdrop = data.curatedBackdrops[0].url;
+          setBannerUrl(topBackdrop);
+          setBannerNotice(`✨ Auto-fetched official 4K backdrop for "${trimmedTitle}"! (${data.curatedBackdrops.length} available)`);
+          setTimeout(() => setBannerNotice(null), 5000);
         }
-      } catch {
-        // silent
       }
-    };
-    fetchEnhanceData();
+    } catch (err) {
+      console.warn("Auto-fetch backdrop error:", err);
+    } finally {
+      setFetchingBackdrops(false);
+    }
+  };
+
+  // Auto-fetch backdrops whenever movie title is given or updated in the management page
+  useEffect(() => {
+    const trimmed = title.trim();
+    if (!trimmed || trimmed.length < 2) return;
+    if (lastFetchedTitleRef.current.toLowerCase() === trimmed.toLowerCase()) return;
+
+    const timer = setTimeout(() => {
+      lastFetchedTitleRef.current = trimmed;
+      executeFetchBackdrops(trimmed, false);
+    }, 600);
+
+    return () => clearTimeout(timer);
   }, [title]);
 
   const handleAutoEnhanceBanner = async () => {
@@ -174,6 +199,7 @@ export default function AdminMovieEditPage({
   };
 
   const handleBannerUrlChange = (val: string) => {
+    setHasManualBannerEdit(true);
     const upgraded = toHighResImageUrl(val, "banner", title);
     setBannerUrl(upgraded);
     if (upgraded !== val && val.trim().length > 0) {
@@ -556,14 +582,51 @@ export default function AdminMovieEditPage({
           </h2>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
-              Movie Title <span style={{ color: "var(--primary)" }}>*</span>
-            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+                Movie Title <span style={{ color: "var(--primary)" }}>*</span>
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {fetchingBackdrops && (
+                  <span style={{ fontSize: "0.75rem", color: "#60a5fa", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                    <Loader2 size={12} className="animate-spin" /> Auto-fetching 4K backdrops...
+                  </span>
+                )}
+                {!fetchingBackdrops && curatedBackdrops.length > 0 && (
+                  <span style={{ fontSize: "0.75rem", color: "#34d399", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                    <Check size={12} /> {curatedBackdrops.length} 4K backdrops available
+                  </span>
+                )}
+                {title.trim().length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => executeFetchBackdrops(title, true)}
+                    disabled={fetchingBackdrops}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      background: "rgba(59, 130, 246, 0.15)",
+                      border: "1px solid rgba(59, 130, 246, 0.3)",
+                      color: "#93c5fd",
+                      padding: "2px 8px",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                    title="Auto-fetch and apply the best available 4K background banner"
+                  >
+                    <Sparkles size={11} /> Auto-Fetch 4K Banners
+                  </button>
+                )}
+              </div>
+            </div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Avatar: The Way of Water"
+              placeholder="e.g. Ramayana - Part 1"
               required
               className="input-field"
             />

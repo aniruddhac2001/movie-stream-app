@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getMovieById, saveMovie, deleteMovie } from "@/lib/movieStore";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(
   _req: NextRequest,
@@ -17,7 +18,7 @@ export async function GET(
 
     return NextResponse.json(
       { success: true, movie, cast, crew, source },
-      { headers: { "Cache-Control": "no-store, max-age=0" } }
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal Error";
@@ -34,7 +35,10 @@ export async function PUT(
     const body = await req.json();
 
     const { movie, source } = await saveMovie({ ...body, id });
-    return NextResponse.json({ success: true, movie, source });
+    return NextResponse.json(
+      { success: true, movie, source },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to update movie";
     return NextResponse.json({ success: false, error: message }, { status: 500 });

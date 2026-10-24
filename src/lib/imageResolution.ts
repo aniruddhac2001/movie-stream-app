@@ -211,7 +211,10 @@ export function analyzeImageResolution(
     lower.includes("3840") ||
     lower.includes("original") ||
     lower.includes("maxresdefault") ||
-    lower.includes("4k")
+    lower.includes("4k") ||
+    lower.includes("yt_final_cover") ||
+    lower.includes("world-of-ramayan") ||
+    lower.includes("worldoframayana")
   ) {
     estimatedQuality = "4K Ultra HD";
     isLowRes = false;
