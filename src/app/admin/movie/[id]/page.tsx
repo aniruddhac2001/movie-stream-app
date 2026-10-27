@@ -1831,7 +1831,7 @@ export default function AdminMovieEditPage({
                   </span>
                 </div>
                 <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "4px 0 0" }}>
-                  Add multiple trailers, teasers, and promotional clips. All trailers automatically run in <strong>2K format (1440p QHD)</strong> for high-definition playback.
+                  Add multiple trailers, teasers, and promotional clips. All trailers stream in <strong>2K format (1440p)</strong>, automatically adapting to <strong>1080p FHD</strong> if the video limit is 1080p.
                 </p>
               </div>
             </div>
@@ -1981,7 +1981,7 @@ export default function AdminMovieEditPage({
                         }}
                       >
                         <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#38bdf8" }} />
-                        <span>2K QHD</span>
+                        <span>2K / 1080p</span>
                       </span>
                     </div>
 

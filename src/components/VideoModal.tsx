@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 interface VideoModalProps {
@@ -10,6 +10,8 @@ interface VideoModalProps {
 }
 
 export function VideoModal({ url, title, onClose }: VideoModalProps) {
+  const [detectedQuality, setDetectedQuality] = useState<string>("2K / 1080p");
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -18,13 +20,41 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  // Listen to YouTube player quality updates to dynamically reflect 2K or 1080p fallback
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      try {
+        const data = JSON.parse(e.data);
+        if (data.event === "infoDelivery" && data.info) {
+          const q = data.info.playbackQuality;
+          if (q) {
+            if (q === "hd1440") {
+              setDetectedQuality("2K QHD (1440p)");
+            } else if (q === "hd2160" || q === "highres") {
+              setDetectedQuality("4K / 2K Ultra HD");
+            } else if (q === "hd1080") {
+              setDetectedQuality("1080p FHD (Max)");
+            } else if (q === "hd720") {
+              setDetectedQuality("720p HD");
+            }
+          }
+        }
+      } catch {
+        // ignore non-JSON messages
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   if (!url) return null;
 
-  // Format embed url for YouTube / Vimeo / Google Drive / Dailymotion in 2K (1440p) format
+  // Format embed url for YouTube / Vimeo / Google Drive / Dailymotion with 2K preference and 1080p fallback
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     try {
-      // Force 2K (1440p QHD) playback: vq=hd1440, hd=1, highres=1, enablejsapi=1
+      // Prioritize 2K (1440p QHD) playback with graceful 1080p fallback: vq=hd1440, hd=1, highres=1, enablejsapi=1
       if (rawUrl.includes("youtu.be/")) {
         const id = rawUrl.split("youtu.be/")[1]?.split("?")[0]?.split("&")[0];
         return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&vq=hd1440&hd=1&highres=1&enablejsapi=1`;
@@ -87,7 +117,7 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
     const iframe = e.currentTarget;
     try {
       iframe.contentWindow?.postMessage(
-        JSON.stringify({ event: "command", func: "setPlaybackQuality", args: ["hd1440"] }),
+        JSON.stringify({ event: "listening" }),
         "*"
       );
       iframe.contentWindow?.postMessage(
@@ -164,7 +194,7 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 2K QHD Quality Pill Indicator */}
+        {/* Dynamic Quality Pill Indicator (2K QHD with 1080p FHD Fallback) */}
         <div
           style={{
             position: "absolute",
@@ -198,7 +228,7 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
               display: "inline-block",
             }}
           />
-          <span>2K QHD (1440p)</span>
+          <span>{detectedQuality}</span>
         </div>
 
         {isEmbed ? (

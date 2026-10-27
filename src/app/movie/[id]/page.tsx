@@ -777,10 +777,10 @@ export default function MovieDetailPage({
                     alignItems: "center",
                     gap: "4px",
                   }}
-                  title="All trailers stream in 2K QHD (1440p) format"
+                  title="Streams in 2K QHD (1440p) or 1080p FHD if video max is 1080p"
                 >
                   <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#38bdf8" }} />
-                  <span>2K QHD Stream</span>
+                  <span>2K / 1080p Stream</span>
                 </span>
               </div>
             </div>
@@ -883,7 +883,7 @@ export default function MovieDetailPage({
                         }}
                       >
                         <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#38bdf8", boxShadow: "0 0 6px #38bdf8" }} />
-                        <span>2K QHD</span>
+                        <span>2K / 1080p</span>
                       </div>
                     </div>
 
