@@ -1831,7 +1831,7 @@ export default function AdminMovieEditPage({
                   </span>
                 </div>
                 <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "4px 0 0" }}>
-                  Add multiple trailers, teasers, and promotional clips. The first trailer is set as the primary preview.
+                  Add multiple trailers, teasers, and promotional clips. All trailers automatically run in <strong>2K format (1440p QHD)</strong> for high-definition playback.
                 </p>
               </div>
             </div>
@@ -1966,6 +1966,23 @@ export default function AdminMovieEditPage({
                           {trailer.url.includes("youtu") ? "YouTube" : trailer.url.includes("vimeo") ? "Vimeo" : "Direct Link"}
                         </span>
                       )}
+                      <span
+                        style={{
+                          fontSize: "0.68rem",
+                          fontWeight: 700,
+                          padding: "1px 6px",
+                          borderRadius: "4px",
+                          background: "rgba(56, 189, 248, 0.12)",
+                          color: "#38bdf8",
+                          border: "1px solid rgba(56, 189, 248, 0.3)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}
+                      >
+                        <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#38bdf8" }} />
+                        <span>2K QHD</span>
+                      </span>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>

@@ -20,26 +20,27 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
 
   if (!url) return null;
 
-  // Format embed url for YouTube / Vimeo / Google Drive / Dailymotion
+  // Format embed url for YouTube / Vimeo / Google Drive / Dailymotion in 2K (1440p) format
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     try {
+      // Force 2K (1440p QHD) playback: vq=hd1440, hd=1, highres=1, enablejsapi=1
       if (rawUrl.includes("youtu.be/")) {
         const id = rawUrl.split("youtu.be/")[1]?.split("?")[0]?.split("&")[0];
-        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&vq=hd1440&hd=1&highres=1&enablejsapi=1`;
       }
       if (rawUrl.includes("youtube.com/watch")) {
         const urlParams = new URL(rawUrl).searchParams;
         const id = urlParams.get("v");
-        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&vq=hd1440&hd=1&highres=1&enablejsapi=1`;
       }
       if (rawUrl.includes("youtube.com/embed/")) {
         const id = rawUrl.split("youtube.com/embed/")[1]?.split("?")[0]?.split("&")[0];
-        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+        return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&vq=hd1440&hd=1&highres=1&enablejsapi=1`;
       }
       if (rawUrl.includes("vimeo.com/")) {
         const id = rawUrl.split("vimeo.com/")[1]?.split("?")[0];
-        return `https://player.vimeo.com/video/${id}?autoplay=1`;
+        return `https://player.vimeo.com/video/${id}?autoplay=1&quality=1440p`;
       }
       if (rawUrl.includes("drive.google.com")) {
         if (rawUrl.includes("/file/d/")) {
@@ -81,6 +82,22 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
       url.includes("player"));
 
   const embedSrc = getEmbedUrl(url);
+
+  const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    const iframe = e.currentTarget;
+    try {
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "setPlaybackQuality", args: ["hd1440"] }),
+        "*"
+      );
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "setSuggestedQuality", args: ["hd1440"] }),
+        "*"
+      );
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div
@@ -147,10 +164,48 @@ export function VideoModal({ url, title, onClose }: VideoModalProps) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 2K QHD Quality Pill Indicator */}
+        <div
+          style={{
+            position: "absolute",
+            top: "14px",
+            left: "14px",
+            zIndex: 10,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "rgba(10, 14, 26, 0.85)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            border: "1px solid rgba(56, 189, 248, 0.45)",
+            padding: "4px 10px",
+            borderRadius: "6px",
+            fontSize: "0.72rem",
+            fontWeight: 800,
+            color: "#38bdf8",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+            letterSpacing: "0.5px",
+            pointerEvents: "none",
+          }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              backgroundColor: "#38bdf8",
+              boxShadow: "0 0 8px #38bdf8",
+              display: "inline-block",
+            }}
+          />
+          <span>2K QHD (1440p)</span>
+        </div>
+
         {isEmbed ? (
           <iframe
             src={embedSrc}
             title={title || "Trailer Player"}
+            onLoad={handleIframeLoad}
             style={{ width: "100%", height: "100%", border: "none" }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
