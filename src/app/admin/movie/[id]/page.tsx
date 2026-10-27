@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useMemo, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Movie, CastMember, CrewMember, ImageItem, isMovieUpcoming } from "@/types/movie";
+import { Movie, CastMember, CrewMember, ImageItem, isMovieUpcoming, TrailerItem } from "@/types/movie";
 import {
   ArrowLeft,
   Save,
@@ -30,6 +30,8 @@ import {
   HelpCircle,
   CheckCircle2,
   Lock,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
@@ -75,6 +77,7 @@ export default function AdminMovieEditPage({
   const [posterUrl, setPosterUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [trailerUrl, setTrailerUrl] = useState("");
+  const [trailers, setTrailers] = useState<TrailerItem[]>([]);
   const [hasFullMovie, setHasFullMovie] = useState(false);
   const [fullMovieUrl, setFullMovieUrl] = useState("");
   const [downloadUrl, setDownloadUrl] = useState("");
@@ -227,7 +230,11 @@ export default function AdminMovieEditPage({
       releaseDate,
       posterUrl: posterUrl.trim(),
       bannerUrl: bannerUrl.trim(),
-      trailerUrl: trailerUrl.trim(),
+      trailerUrl: trailers[0]?.url ? trailers[0].url.trim() : trailerUrl.trim(),
+      trailers: trailers.map((t) => ({
+        name: (t.name || "").trim(),
+        url: (t.url || "").trim(),
+      })),
       hasFullMovie: isUpcoming ? false : hasFullMovie,
       fullMovieUrl: isUpcoming ? "" : fullMovieUrl.trim(),
       downloadUrl: isUpcoming ? "" : downloadUrl.trim(),
@@ -262,6 +269,7 @@ export default function AdminMovieEditPage({
     posterUrl,
     bannerUrl,
     trailerUrl,
+    trailers,
     hasFullMovie,
     fullMovieUrl,
     downloadUrl,
@@ -299,6 +307,17 @@ export default function AdminMovieEditPage({
             const post = m.posterImage?.[0]?.url || "";
             const ban = m.bannerImage?.[0]?.url || "";
             const trail = m.trailerUrl || "";
+            let trailerList: TrailerItem[] = [];
+            if (Array.isArray(m.trailers) && m.trailers.length > 0) {
+              trailerList = m.trailers.map((t, idx) => ({
+                id: t.id || `trailer-${idx + 1}`,
+                name: (t.name || `Trailer ${idx + 1}`).trim(),
+                url: (t.url || "").trim(),
+              }));
+            } else if (trail) {
+              trailerList = [{ id: "trailer-1", name: "Official Trailer", url: trail.trim() }];
+            }
+            const primaryTrail = trailerList[0]?.url || trail;
             const fullMovUrl = m.fullMovieUrl || "";
             const dl = m.downloadUrl || "";
             const fullMov = Boolean(m.hasFullMovie || fullMovUrl.trim().length > 0 || dl.trim().length > 0);
@@ -316,7 +335,8 @@ export default function AdminMovieEditPage({
             setReleaseDate(rel);
             setPosterUrl(post);
             setBannerUrl(ban);
-            setTrailerUrl(trail);
+            setTrailerUrl(primaryTrail);
+            setTrailers(trailerList);
             setHasFullMovie(fullMov);
             setFullMovieUrl(fullMovUrl);
             setDownloadUrl(dl);
@@ -337,7 +357,11 @@ export default function AdminMovieEditPage({
                 releaseDate: rel,
                 posterUrl: post.trim(),
                 bannerUrl: ban.trim(),
-                trailerUrl: trail.trim(),
+                trailerUrl: primaryTrail.trim(),
+                trailers: trailerList.map((t) => ({
+                  name: (t.name || "").trim(),
+                  url: (t.url || "").trim(),
+                })),
                 hasFullMovie: fullMov,
                 fullMovieUrl: fullMovUrl.trim(),
                 downloadUrl: dl.trim(),
@@ -447,6 +471,43 @@ export default function AdminMovieEditPage({
     setScreenshots((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleAddTrailer = (presetName?: string) => {
+    const nextIdx = trailers.length + 1;
+    const defaultName = presetName || (nextIdx === 1 ? "Official Trailer" : `Trailer ${nextIdx}`);
+    setTrailers((prev) => [
+      ...prev,
+      {
+        id: `trailer-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: defaultName,
+        url: "",
+      },
+    ]);
+  };
+
+  const handleUpdateTrailer = (index: number, field: keyof TrailerItem, val: string) => {
+    setTrailers((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: val };
+      return copy;
+    });
+  };
+
+  const handleRemoveTrailer = (index: number) => {
+    setTrailers((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMoveTrailer = (index: number, direction: "up" | "down") => {
+    setTrailers((prev) => {
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -460,6 +521,16 @@ export default function AdminMovieEditPage({
     const parsedRating =
       enableRating && rating.trim() !== "" ? parseFloat(rating) : undefined;
 
+    const validTrailers = trailers
+      .map((t, idx) => ({
+        id: t.id || `trailer-${idx + 1}`,
+        name: (t.name || `Trailer ${idx + 1}`).trim(),
+        url: (t.url || "").trim(),
+      }))
+      .filter((t) => t.url.length > 0);
+
+    const primaryTrailerUrl = validTrailers[0]?.url || trailerUrl.trim();
+
     const payload: Record<string, unknown> = {
       id: isNew ? undefined : movieId,
       title: title.trim(),
@@ -468,7 +539,8 @@ export default function AdminMovieEditPage({
       releaseDate: releaseDate.trim(),
       posterImage: posterUrl ? [{ url: posterUrl.trim() }] : [],
       bannerImage: bannerUrl ? [{ url: bannerUrl.trim() }] : [],
-      trailerUrl: trailerUrl.trim(),
+      trailerUrl: primaryTrailerUrl,
+      trailers: validTrailers,
       hasFullMovie: Boolean(hasFullMovie || fullMovieUrl.trim().length > 0 || downloadUrl.trim().length > 0),
       fullMovieUrl: fullMovieUrl.trim(),
       downloadUrl: downloadUrl.trim(),
@@ -1691,20 +1763,6 @@ export default function AdminMovieEditPage({
             </span>
           </div>
 
-          {/* Official Trailer Input */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
-              Official Trailer URL (YouTube, Vimeo, or direct MP4)
-            </label>
-            <input
-              type="text"
-              value={trailerUrl}
-              onChange={(e) => setTrailerUrl(e.target.value)}
-              placeholder="e.g. https://youtu.be/0Yq_FsMuP8U"
-              className="input-field"
-            />
-          </div>
-
           {/* Hero Banner Feature Toggle */}
           <label
             style={{
@@ -1740,7 +1798,271 @@ export default function AdminMovieEditPage({
           </label>
         </div>
 
-        {/* Section 5: Cast & Characters */}
+        {/* Section 5: Official Trailers & Teasers (Multiple Trailers) */}
+        <div
+          style={{
+            background: "rgba(20, 23, 34, 0.6)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-md)",
+            padding: "24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <Film size={20} color="var(--primary)" />
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Official Trailers &amp; Teasers</h2>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                      background: "rgba(229, 9, 20, 0.12)",
+                      color: "var(--primary)",
+                      border: "1px solid rgba(229, 9, 20, 0.3)",
+                    }}
+                  >
+                    {trailers.length} {trailers.length === 1 ? "Trailer" : "Trailers"}
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "4px 0 0" }}>
+                  Add multiple trailers, teasers, and promotional clips. The first trailer is set as the primary preview.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleAddTrailer()}
+              className="btn-secondary"
+              style={{ padding: "8px 16px", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "6px" }}
+            >
+              <Plus size={14} />
+              <span>Add Trailer</span>
+            </button>
+          </div>
+
+          {/* Quick preset chips */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", padding: "10px 14px", background: "rgba(255, 255, 255, 0.02)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+            <span style={{ fontSize: "0.76rem", fontWeight: 600, color: "var(--text-secondary)" }}>Quick Add:</span>
+            {[
+              "Official Trailer",
+              "Teaser Trailer",
+              "Trailer 2",
+              "Final Trailer",
+              "Exclusive Promo",
+            ].map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => handleAddTrailer(preset)}
+                style={{
+                  fontSize: "0.74rem",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  color: "#e2e8f0",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(229, 9, 20, 0.18)";
+                  e.currentTarget.style.borderColor = "var(--primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+                }}
+              >
+                <Plus size={11} />
+                <span>{preset}</span>
+              </button>
+            ))}
+          </div>
+
+          {trailers.length === 0 ? (
+            <div
+              style={{
+                border: "2px dashed var(--border-subtle)",
+                borderRadius: "var(--radius-sm)",
+                padding: "32px 20px",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "rgba(255, 255, 255, 0.04)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Film size={22} />
+              </div>
+              <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "#ffffff" }}>
+                No trailers linked to this movie yet
+              </div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", maxWidth: "420px", margin: 0 }}>
+                Link YouTube, Vimeo, or direct video trailers so users can preview high-definition trailers before watching.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleAddTrailer("Official Trailer")}
+                className="btn-secondary"
+                style={{ marginTop: "6px", padding: "6px 16px", fontSize: "0.82rem" }}
+              >
+                <Plus size={14} />
+                <span>Add Official Trailer</span>
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {trailers.map((trailer, idx) => (
+                <div
+                  key={trailer.id || idx}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.025)",
+                    borderRadius: "var(--radius-sm)",
+                    border: idx === 0 ? "1px solid rgba(229, 9, 20, 0.35)" : "1px solid var(--border-subtle)",
+                    padding: "14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span
+                        style={{
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background: idx === 0 ? "rgba(229, 9, 20, 0.2)" : "rgba(255, 255, 255, 0.08)",
+                          color: idx === 0 ? "var(--primary)" : "var(--text-secondary)",
+                          border: idx === 0 ? "1px solid rgba(229, 9, 20, 0.4)" : "1px solid rgba(255, 255, 255, 0.1)",
+                        }}
+                      >
+                        {idx === 0 ? "★ Primary Trailer (#1)" : `#${idx + 1}`}
+                      </span>
+                      {trailer.url && (
+                        <span style={{ fontSize: "0.72rem", color: "#38bdf8" }}>
+                          {trailer.url.includes("youtu") ? "YouTube" : trailer.url.includes("vimeo") ? "Vimeo" : "Direct Link"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      {/* Live Test Play button */}
+                      <button
+                        type="button"
+                        disabled={!trailer.url?.trim()}
+                        onClick={() => {
+                          if (trailer.url?.trim()) {
+                            playVideo(trailer.url.trim(), `${title || "Movie"} - ${trailer.name || "Trailer"}`);
+                          }
+                        }}
+                        className="btn-icon"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          color: trailer.url?.trim() ? "#22c55e" : "var(--text-muted)",
+                          opacity: trailer.url?.trim() ? 1 : 0.4,
+                          cursor: trailer.url?.trim() ? "pointer" : "not-allowed",
+                        }}
+                        title={trailer.url?.trim() ? "Preview Trailer Video" : "Enter a URL to preview"}
+                      >
+                        <Play size={14} fill={trailer.url?.trim() ? "currentColor" : "none"} />
+                      </button>
+
+                      {/* Move Up */}
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => handleMoveTrailer(idx, "up")}
+                        className="btn-icon"
+                        style={{ width: 32, height: 32, opacity: idx === 0 ? 0.3 : 1 }}
+                        title="Move Up"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+
+                      {/* Move Down */}
+                      <button
+                        type="button"
+                        disabled={idx === trailers.length - 1}
+                        onClick={() => handleMoveTrailer(idx, "down")}
+                        className="btn-icon"
+                        style={{ width: 32, height: 32, opacity: idx === trailers.length - 1 ? 0.3 : 1 }}
+                        title="Move Down"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+
+                      {/* Remove */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTrailer(idx)}
+                        className="btn-icon"
+                        style={{ width: 32, height: 32, color: "#f87171" }}
+                        title="Remove Trailer"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 2fr",
+                      gap: "10px",
+                    }}
+                  >
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Trailer Name (e.g. Official Trailer)"
+                        value={trailer.name}
+                        onChange={(e) => handleUpdateTrailer(idx, "name", e.target.value)}
+                        className="input-field"
+                        style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Trailer URL (YouTube, Vimeo, MP4, etc.)"
+                        value={trailer.url}
+                        onChange={(e) => handleUpdateTrailer(idx, "url", e.target.value)}
+                        className="input-field"
+                        style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Section 6: Top Cast Members */}
         <div
           style={{
             background: "rgba(20, 23, 34, 0.6)",
@@ -1830,7 +2152,7 @@ export default function AdminMovieEditPage({
           )}
         </div>
 
-        {/* Section 5: Crew & Production Members */}
+        {/* Section 7: Crew & Production Members */}
         <div
           style={{
             background: "rgba(20, 23, 34, 0.6)",

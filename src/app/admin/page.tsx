@@ -456,17 +456,31 @@ export default function AdminPage() {
                     );
                   })()}
 
-                  {m.trailerUrl && (
+                  {((m.trailers && m.trailers.length > 0) || m.trailerUrl) && (
                     <span
                       style={{
                         fontSize: "0.72rem",
-                        color: "var(--text-secondary)",
-                        background: "rgba(255, 255, 255, 0.05)",
+                        color: "#38bdf8",
+                        background: "rgba(56, 189, 248, 0.1)",
+                        border: "1px solid rgba(56, 189, 248, 0.25)",
                         padding: "3px 8px",
                         borderRadius: "4px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
                       }}
+                      title={
+                        m.trailers && m.trailers.length > 0
+                          ? m.trailers.map((t) => t.name).join(", ")
+                          : "Trailer Linked"
+                      }
                     >
-                      Trailer Linked
+                      <Film size={11} />
+                      <span>
+                        {m.trailers && m.trailers.length > 1
+                          ? `${m.trailers.length} Trailers`
+                          : m.trailers?.[0]?.name || "Trailer Linked"}
+                      </span>
                     </span>
                   )}
                 </div>

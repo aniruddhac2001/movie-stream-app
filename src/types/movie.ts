@@ -12,6 +12,12 @@ export interface CrewMember {
   photoUrl?: string;
 }
 
+export interface TrailerItem {
+  id?: string;
+  name: string;
+  url: string;
+}
+
 export interface ImageItem {
   url: string;
   filename?: string;
@@ -28,6 +34,7 @@ export interface Movie {
   bannerImage?: ImageItem[];
   screenshots?: ImageItem[];
   trailerUrl?: string;
+  trailers?: TrailerItem[];
   hasFullMovie: boolean;
   fullMovieUrl?: string;
   downloadUrl?: string;
@@ -84,5 +91,42 @@ export function getMovieStatus(
   // If movie link has been received -> Available Now
   // If NO movie link received -> Automatically change to Available Soon
   return hasLink ? "available_now" : "available_soon";
+}
+
+export function getTrailerThumbnail(url: string, fallbackUrl?: string): string {
+  if (!url) return fallbackUrl || "";
+  try {
+    let ytId: string | null = null;
+    if (url.includes("youtu.be/")) {
+      ytId = url.split("youtu.be/")[1]?.split("?")[0]?.split("&")[0] || null;
+    } else if (url.includes("youtube.com/watch")) {
+      ytId = new URL(url).searchParams.get("v");
+    } else if (url.includes("youtube.com/embed/")) {
+      ytId = url.split("youtube.com/embed/")[1]?.split("?")[0]?.split("&")[0] || null;
+    }
+    if (ytId) {
+      return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+    }
+  } catch {
+    // ignore
+  }
+  return fallbackUrl || "";
+}
+
+export function getNormalizedTrailers(movie?: Partial<Movie> | null): TrailerItem[] {
+  if (!movie) return [];
+  if (Array.isArray(movie.trailers) && movie.trailers.length > 0) {
+    return movie.trailers.filter((t) => t.url && t.url.trim().length > 0);
+  }
+  if (movie.trailerUrl && movie.trailerUrl.trim().length > 0) {
+    return [
+      {
+        id: "trailer-1",
+        name: "Official Trailer",
+        url: movie.trailerUrl.trim(),
+      },
+    ];
+  }
+  return [];
 }
 

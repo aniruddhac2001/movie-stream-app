@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Movie, CastMember, CrewMember, getMovieStatus, isMovieUpcoming } from "@/types/movie";
+import { Movie, CastMember, CrewMember, getMovieStatus, isMovieUpcoming, getNormalizedTrailers, getTrailerThumbnail } from "@/types/movie";
 import { useWatchlist } from "@/context/WatchlistContext";
 import { useVideo } from "@/context/VideoContext";
 import {
@@ -20,6 +20,7 @@ import {
   Share2,
   Camera,
   Clapperboard,
+  ChevronDown,
 } from "lucide-react";
 import { dismissPreloader } from "@/lib/preloaderEvents";
 import {
@@ -48,6 +49,7 @@ export default function MovieDetailPage({
   const [loading, setLoading] = useState<boolean>(() => !cachedInitial);
   const [copied, setCopied] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
+  const [showTrailerDropdown, setShowTrailerDropdown] = useState(false);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { playVideo } = useVideo();
@@ -158,6 +160,7 @@ export default function MovieDetailPage({
   const inWatchlist = isInWatchlist(movie.id);
   const status = getMovieStatus(movie);
   const isUpcoming = status === "upcoming";
+  const trailers = getNormalizedTrailers(movie);
 
   const rawBannerUrl =
     movie.bannerImage?.[0]?.url ||
@@ -381,19 +384,119 @@ export default function MovieDetailPage({
               })()}
 
               {/* Secondary: Watch Trailer */}
-              {movie.trailerUrl && (
-                <button
-                  onClick={() => {
-                    if (movie.trailerUrl) {
-                      playVideo(movie.trailerUrl, `${movie.title} - Official Trailer`);
-                    }
-                  }}
-                  className="btn-watch-trailer"
-                  title="Watch Official Trailer"
-                >
-                  <Film size={16} strokeWidth={2.4} />
-                  <span>Watch Trailer</span>
-                </button>
+              {trailers.length > 0 && (
+                <div style={{ position: "relative", display: "inline-flex" }}>
+                  <button
+                    onClick={() => {
+                      playVideo(trailers[0].url, `${movie.title} - ${trailers[0].name || "Official Trailer"}`);
+                    }}
+                    className="btn-watch-trailer"
+                    title={`Watch ${trailers[0].name || "Official Trailer"}`}
+                    style={{
+                      borderTopRightRadius: trailers.length > 1 ? 0 : undefined,
+                      borderBottomRightRadius: trailers.length > 1 ? 0 : undefined,
+                    }}
+                  >
+                    <Film size={16} strokeWidth={2.4} />
+                    <span>Watch Trailer</span>
+                  </button>
+
+                  {trailers.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowTrailerDropdown((prev) => !prev)}
+                      className="btn-watch-trailer"
+                      style={{
+                        padding: "0 10px",
+                        borderLeft: "1px solid rgba(255, 255, 255, 0.2)",
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                        background: "rgba(255, 255, 255, 0.08)",
+                      }}
+                      title="Choose trailer"
+                      aria-label="Choose trailer"
+                    >
+                      <span style={{ fontSize: "0.75rem", fontWeight: 700, marginRight: "4px" }}>
+                        {trailers.length}
+                      </span>
+                      <ChevronDown size={14} />
+                    </button>
+                  )}
+
+                  {showTrailerDropdown && trailers.length > 1 && (
+                    <>
+                      <div
+                        onClick={() => setShowTrailerDropdown(false)}
+                        style={{ position: "fixed", inset: 0, zIndex: 90 }}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "calc(100% + 6px)",
+                          left: 0,
+                          minWidth: "240px",
+                          background: "rgba(18, 21, 31, 0.98)",
+                          backdropFilter: "blur(16px)",
+                          WebkitBackdropFilter: "blur(16px)",
+                          border: "1px solid rgba(255, 255, 255, 0.16)",
+                          borderRadius: "10px",
+                          boxShadow: "0 14px 40px rgba(0, 0, 0, 0.8)",
+                          zIndex: 100,
+                          overflow: "hidden",
+                          padding: "6px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                        }}
+                      >
+                        <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", padding: "4px 8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                          Select Trailer ({trailers.length})
+                        </div>
+                        {trailers.map((t, idx) => (
+                          <button
+                            key={t.id || idx}
+                            type="button"
+                            onClick={() => {
+                              setShowTrailerDropdown(false);
+                              playVideo(t.url, `${movie.title} - ${t.name || "Trailer"}`);
+                            }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "8px 10px",
+                              borderRadius: "6px",
+                              background: idx === 0 ? "rgba(229, 9, 20, 0.12)" : "transparent",
+                              border: "none",
+                              color: "#ffffff",
+                              fontSize: "0.85rem",
+                              fontWeight: 600,
+                              textAlign: "left",
+                              cursor: "pointer",
+                              transition: "background 0.15s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = idx === 0 ? "rgba(229, 9, 20, 0.12)" : "transparent";
+                            }}
+                          >
+                            <Play size={14} color={idx === 0 ? "var(--primary)" : "#ffffff"} fill={idx === 0 ? "var(--primary)" : "none"} />
+                            <div style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {t.name || `Trailer ${idx + 1}`}
+                            </div>
+                            {idx === 0 && (
+                              <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontWeight: 700 }}>
+                                Main
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
 
               {/* Status or Download */}
@@ -635,6 +738,143 @@ export default function MovieDetailPage({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Trailers & Clips Gallery */}
+        {trailers.length > 0 && (
+          <div id="trailers" style={{ marginTop: (cast.length > 0 || crew.length > 0) ? "44px" : "16px", marginBottom: "40px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Film size={20} color="var(--primary)" />
+                <h2 style={{ fontSize: "1.4rem", fontWeight: 800, margin: 0, color: "#ffffff" }}>
+                  Trailers &amp; Clips
+                </h2>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "2px 8px",
+                    borderRadius: "999px",
+                    background: "rgba(229, 9, 20, 0.12)",
+                    color: "var(--primary)",
+                    border: "1px solid rgba(229, 9, 20, 0.25)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {trailers.length} {trailers.length === 1 ? "Video" : "Videos"}
+                </span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: "18px",
+              }}
+            >
+              {trailers.map((t, idx) => {
+                const thumb = getTrailerThumbnail(t.url, movie.bannerImage?.[0]?.url || movie.posterImage?.[0]?.url);
+                return (
+                  <div
+                    key={t.id || idx}
+                    onClick={() => playVideo(t.url, `${movie.title} - ${t.name || "Trailer"}`)}
+                    style={{
+                      position: "relative",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      background: "#0c0e15",
+                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+                      cursor: "pointer",
+                      transition: "transform 0.2s ease, border-color 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.borderColor = "rgba(229, 9, 20, 0.5)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+                    }}
+                  >
+                    {/* Thumbnail */}
+                    <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", overflow: "hidden", backgroundColor: "#151822" }}>
+                      {thumb ? (
+                        <Image
+                          src={thumb}
+                          alt={t.name || "Trailer"}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+                          <Film size={32} />
+                        </div>
+                      )}
+
+                      {/* Play Button Overlay */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "rgba(0, 0, 0, 0.4)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(229, 9, 20, 0.9)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#ffffff",
+                            boxShadow: "0 4px 16px rgba(229, 9, 20, 0.6)",
+                          }}
+                        >
+                          <Play size={22} fill="#ffffff" style={{ marginLeft: "3px" }} />
+                        </div>
+                      </div>
+
+                      {/* Tag / Badge */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "8px",
+                          right: "8px",
+                          background: "rgba(0, 0, 0, 0.8)",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: "#ffffff",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        PREVIEW
+                      </div>
+                    </div>
+
+                    {/* Trailer Title */}
+                    <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                      <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {t.name || `Trailer ${idx + 1}`}
+                      </div>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", flexShrink: 0 }}>
+                        Play Video
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

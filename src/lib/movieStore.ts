@@ -1,4 +1,4 @@
-import { Movie, isMovieUpcoming } from "@/types/movie";
+import { Movie, TrailerItem, isMovieUpcoming, getNormalizedTrailers } from "@/types/movie";
 import { getDb, getFirebaseStatus } from "./firebase";
 import {
   collection,
@@ -21,8 +21,11 @@ import { toHighResImageUrl } from "./imageResolution";
 
 export function normalizeMovieImages(m: Movie): Movie {
   if (!m) return m;
+  const rawTrailers: TrailerItem[] = getNormalizedTrailers(m);
   return {
     ...m,
+    trailers: rawTrailers,
+    trailerUrl: rawTrailers[0]?.url || (m.trailerUrl ? m.trailerUrl.trim() : ""),
     bannerImage: (m.bannerImage || []).map((img) => ({
       ...img,
       url: toHighResImageUrl(img.url, "banner", m.title),
@@ -152,7 +155,21 @@ export async function saveMovie(movieData: Partial<Movie>): Promise<{
       url: toHighResImageUrl(img.url, "banner", movieData.title),
     })),
     screenshots: movieData.screenshots || [],
-    trailerUrl: movieData.trailerUrl ? movieData.trailerUrl.trim() : "",
+    trailers: Array.isArray(movieData.trailers) && movieData.trailers.length > 0
+      ? movieData.trailers
+          .map((t, idx) => ({
+            id: t.id || `trailer-${Date.now()}-${idx + 1}`,
+            name: (t.name || `Trailer ${idx + 1}`).trim(),
+            url: (t.url || "").trim(),
+          }))
+          .filter((t) => t.url.length > 0)
+      : movieData.trailerUrl?.trim()
+      ? [{ id: "trailer-1", name: "Official Trailer", url: movieData.trailerUrl.trim() }]
+      : [],
+    trailerUrl:
+      Array.isArray(movieData.trailers) && movieData.trailers.find((t) => t.url?.trim())?.url
+        ? movieData.trailers.find((t) => t.url?.trim())!.url.trim()
+        : movieData.trailerUrl ? movieData.trailerUrl.trim() : "",
     hasFullMovie: Boolean(
       movieData.hasFullMovie ||
       (movieData.fullMovieUrl && movieData.fullMovieUrl.trim().length > 0) ||
