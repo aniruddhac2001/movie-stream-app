@@ -764,24 +764,6 @@ export default function MovieDetailPage({
                 >
                   {trailers.length} {trailers.length === 1 ? "Video" : "Videos"}
                 </span>
-                <span
-                  style={{
-                    fontSize: "0.72rem",
-                    padding: "2px 8px",
-                    borderRadius: "6px",
-                    background: "rgba(56, 189, 248, 0.12)",
-                    color: "#38bdf8",
-                    border: "1px solid rgba(56, 189, 248, 0.3)",
-                    fontWeight: 700,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                  }}
-                  title="Streams in 2K QHD (1440p) or 1080p FHD if video max is 1080p"
-                >
-                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#38bdf8" }} />
-                  <span>2K / 1080p Stream</span>
-                </span>
               </div>
             </div>
 
@@ -862,28 +844,22 @@ export default function MovieDetailPage({
                         </div>
                       </div>
 
-                      {/* 2K QHD Format Badge */}
+                      {/* Tag / Badge */}
                       <div
                         style={{
                           position: "absolute",
                           bottom: "8px",
                           right: "8px",
-                          background: "rgba(10, 14, 26, 0.9)",
-                          border: "1px solid rgba(56, 189, 248, 0.45)",
-                          backdropFilter: "blur(6px)",
-                          padding: "3px 8px",
+                          background: "rgba(0, 0, 0, 0.8)",
+                          padding: "2px 8px",
                           borderRadius: "4px",
                           fontSize: "0.7rem",
-                          fontWeight: 800,
-                          color: "#38bdf8",
+                          fontWeight: 700,
+                          color: "#ffffff",
                           letterSpacing: "0.5px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
                         }}
                       >
-                        <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#38bdf8", boxShadow: "0 0 6px #38bdf8" }} />
-                        <span>2K / 1080p</span>
+                        PREVIEW
                       </div>
                     </div>
 
