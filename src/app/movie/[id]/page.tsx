@@ -536,11 +536,6 @@ export default function MovieDetailPage({
                   }}
                   className="btn-download-movie"
                   title="Download Movie"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    border: "1px solid rgba(255, 255, 255, 0.16)",
-                    color: "#e2e8f0",
-                  }}
                 >
                   <Download size={16} strokeWidth={2.4} />
                   <span>Download</span>

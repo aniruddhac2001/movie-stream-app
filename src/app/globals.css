@@ -826,23 +826,28 @@ button, input, textarea, select {
 .btn-download-movie {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: #ef4444;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #fa8072;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  padding: 10px 22px;
-  border-radius: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 9px;
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(250, 128, 114, 0.45);
+  box-sizing: border-box;
 }
 
 .btn-download-movie:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.55);
+  background: #f27263;
+  color: #ffffff;
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 24px rgba(250, 128, 114, 0.65), 0 0 16px rgba(250, 128, 114, 0.4);
 }
 
 .btn-play-movie {
