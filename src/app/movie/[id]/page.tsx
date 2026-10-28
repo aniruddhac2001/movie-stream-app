@@ -348,6 +348,8 @@ export default function MovieDetailPage({
             <div
               className="detail-actions-row"
               style={{
+                position: "relative",
+                zIndex: 30,
                 display: "flex",
                 alignItems: "center",
                 flexWrap: "wrap",
@@ -431,70 +433,36 @@ export default function MovieDetailPage({
                         onClick={() => setShowTrailerDropdown(false)}
                         style={{ position: "fixed", inset: 0, zIndex: 90 }}
                       />
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "calc(100% + 8px)",
-                          left: 0,
-                          minWidth: "260px",
-                          background: "rgba(16, 20, 30, 0.98)",
-                          backdropFilter: "blur(16px)",
-                          WebkitBackdropFilter: "blur(16px)",
-                          border: "1px solid rgba(229, 9, 20, 0.3)",
-                          borderRadius: "12px",
-                          boxShadow: "0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(229, 9, 20, 0.2)",
-                          zIndex: 100,
-                          overflow: "hidden",
-                          padding: "8px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "4px",
-                        }}
-                      >
-                        <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", padding: "4px 8px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                          Select Trailer ({trailers.length})
+                      <div className="trailer-dropdown-menu">
+                        <div className="trailer-dropdown-header">
+                          <span>Select Trailer</span>
+                          <span className="trailer-dropdown-count-badge">
+                            {trailers.length} {trailers.length === 1 ? "Video" : "Videos"}
+                          </span>
                         </div>
-                        {trailers.map((t, idx) => (
-                          <button
-                            key={t.id || idx}
-                            type="button"
-                            onClick={() => {
-                              setShowTrailerDropdown(false);
-                              playVideo(t.url, `${movie.title} - ${t.name || "Trailer"}`);
-                            }}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 10px",
-                              borderRadius: "6px",
-                              background: idx === 0 ? "rgba(229, 9, 20, 0.12)" : "transparent",
-                              border: "none",
-                              color: "#ffffff",
-                              fontSize: "0.85rem",
-                              fontWeight: 600,
-                              textAlign: "left",
-                              cursor: "pointer",
-                              transition: "background 0.15s ease",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = idx === 0 ? "rgba(229, 9, 20, 0.12)" : "transparent";
-                            }}
-                          >
-                            <Play size={14} color={idx === 0 ? "var(--primary)" : "#ffffff"} fill={idx === 0 ? "var(--primary)" : "none"} />
-                            <div style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                              {t.name || `Trailer ${idx + 1}`}
-                            </div>
-                            {idx === 0 && (
-                              <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontWeight: 700 }}>
-                                Main
+                        <div className="trailer-dropdown-list">
+                          {trailers.map((t, idx) => (
+                            <button
+                              key={t.id || idx}
+                              type="button"
+                              onClick={() => {
+                                setShowTrailerDropdown(false);
+                                playVideo(t.url, `${movie.title} - ${t.name || "Trailer"}`);
+                              }}
+                              className={`trailer-dropdown-item ${idx === 0 ? "is-main" : ""}`}
+                            >
+                              <Play size={14} color={idx === 0 ? "var(--primary)" : "#ffffff"} fill={idx === 0 ? "var(--primary)" : "none"} />
+                              <span className="trailer-dropdown-item-title">
+                                {t.name || `Trailer ${idx + 1}`}
                               </span>
-                            )}
-                          </button>
-                        ))}
+                              {idx === 0 && (
+                                <span className="trailer-dropdown-main-badge">
+                                  Main
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}
