@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -50,9 +50,39 @@ export default function MovieDetailPage({
   const [copied, setCopied] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [showTrailerDropdown, setShowTrailerDropdown] = useState(false);
+  const trailerDropdownRef = useRef<HTMLDivElement>(null);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { playVideo } = useVideo();
+
+  // Close trailer dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!showTrailerDropdown) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        trailerDropdownRef.current &&
+        !trailerDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowTrailerDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowTrailerDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showTrailerDropdown]);
 
   useEffect(() => {
     const cached = getCachedMovie(movieId);
@@ -387,7 +417,10 @@ export default function MovieDetailPage({
 
               {/* Secondary: Watch Trailer */}
               {trailers.length > 0 && (
-                <div className={`trailer-btn-group ${showTrailerDropdown ? "dropdown-open" : ""}`}>
+                <div
+                  ref={trailerDropdownRef}
+                  className={`trailer-btn-group ${showTrailerDropdown ? "dropdown-open" : ""}`}
+                >
                   <button
                     type="button"
                     onClick={() => {
@@ -428,12 +461,7 @@ export default function MovieDetailPage({
                   )}
 
                   {showTrailerDropdown && trailers.length > 1 && (
-                    <>
-                      <div
-                        onClick={() => setShowTrailerDropdown(false)}
-                        style={{ position: "fixed", inset: 0, zIndex: 90 }}
-                      />
-                      <div className="trailer-dropdown-menu">
+                    <div className="trailer-dropdown-menu">
                         <div className="trailer-dropdown-header">
                           <span>Select Trailer</span>
                           <span className="trailer-dropdown-count-badge">
@@ -464,8 +492,7 @@ export default function MovieDetailPage({
                           ))}
                         </div>
                       </div>
-                    </>
-                  )}
+                    )}
                 </div>
               )}
 
