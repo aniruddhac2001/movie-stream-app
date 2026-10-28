@@ -33,6 +33,7 @@ import {
   Lock,
   ArrowUp,
   ArrowDown,
+  X,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
@@ -91,6 +92,14 @@ export default function AdminMovieEditPage({
   const [castNotice, setCastNotice] = useState<string | null>(null);
   const [castViewMode, setCastViewMode] = useState<"cards" | "list">("cards");
   const [editingCastIndex, setEditingCastIndex] = useState<number | null>(null);
+  const [modalActor, setModalActor] = useState<{
+    index: number;
+    actorName: string;
+    characterName: string;
+    photoUrl: string;
+  } | null>(null);
+  const [uploadingActorPhoto, setUploadingActorPhoto] = useState(false);
+  const actorPhotoInputRef = useRef<HTMLInputElement | null>(null);
   const [crew, setCrew] = useState<CrewMember[]>([]);
   const [screenshots, setScreenshots] = useState<ImageItem[]>([]);
   const [screenshotUrlInput, setScreenshotUrlInput] = useState("");
@@ -403,8 +412,96 @@ export default function AdminMovieEditPage({
     );
   };
 
+  // Escape key to close actor edit modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && modalActor) {
+        setModalActor(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [modalActor]);
+
   const handleAddCastMember = () => {
     setCast((prev) => [...prev, { actorName: "", characterName: "", photoUrl: "" }]);
+  };
+
+  const handleOpenEditModal = (idx: number) => {
+    const item = cast[idx];
+    if (!item) return;
+    setModalActor({
+      index: idx,
+      actorName: item.actorName || "",
+      characterName: item.characterName || "",
+      photoUrl: item.photoUrl || "",
+    });
+  };
+
+  const handleOpenAddModal = () => {
+    setModalActor({
+      index: -1,
+      actorName: "",
+      characterName: "",
+      photoUrl: "",
+    });
+  };
+
+  const handleSaveModalActor = () => {
+    if (!modalActor) return;
+    if (!modalActor.actorName.trim()) {
+      alert("Please enter the actor name.");
+      return;
+    }
+    const updated: CastMember = {
+      actorName: modalActor.actorName.trim(),
+      characterName: modalActor.characterName.trim(),
+      photoUrl: modalActor.photoUrl.trim(),
+    };
+    if (modalActor.index === -1) {
+      setCast((prev) => [...prev, updated]);
+    } else {
+      setCast((prev) => {
+        const copy = [...prev];
+        copy[modalActor.index] = updated;
+        return copy;
+      });
+    }
+    setModalActor(null);
+  };
+
+  const handleDeleteFromModal = () => {
+    if (!modalActor) return;
+    if (modalActor.index >= 0) {
+      handleRemoveCast(modalActor.index);
+    }
+    setModalActor(null);
+  };
+
+  const handleActorPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingActorPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.files?.[0]?.url) {
+        setModalActor((prev) => (prev ? { ...prev, photoUrl: data.files[0].url } : null));
+      } else {
+        alert(data.error || "Failed to upload photo");
+      }
+    } catch (err) {
+      console.error("Actor photo upload error:", err);
+      alert("Error uploading actor photo");
+    } finally {
+      setUploadingActorPhoto(false);
+      if (e.target) e.target.value = "";
+    }
   };
 
   const handleUpdateCast = (index: number, field: keyof CastMember, val: string) => {
@@ -420,6 +517,9 @@ export default function AdminMovieEditPage({
     if (editingCastIndex === index) {
       setEditingCastIndex(null);
     }
+    if (modalActor?.index === index) {
+      setModalActor(null);
+    }
   };
 
   const handleAutoFetchCast = async () => {
@@ -428,6 +528,13 @@ export default function AdminMovieEditPage({
       setCastNotice("⚠️ Please enter a movie title above first to auto-fetch actors.");
       setTimeout(() => setCastNotice(null), 4000);
       return;
+    }
+
+    if (cast.length > 0) {
+      const confirmOverwrite = window.confirm(
+        `Auto-fetch actors for "${trimmedTitle}"? This will replace the current cast with newly fetched actors. Click OK to proceed.`
+      );
+      if (!confirmOverwrite) return;
     }
 
     setFetchingCast(true);
@@ -442,10 +549,10 @@ export default function AdminMovieEditPage({
       if (data.success && Array.isArray(data.cast) && data.cast.length > 0) {
         setCast(data.cast);
         setCastViewMode("cards");
-        setCastNotice(`✨ Auto-fetched ${data.cast.length} actors with photos and roles for "${trimmedTitle}"!`);
+        setCastNotice(`✨ Auto-fetched ${data.cast.length} actors with image, name, and role! You can click "Edit Manually" on any actor to correct mistakes.`);
         setTimeout(() => setCastNotice(null), 6000);
       } else {
-        setCastNotice(`⚠️ ${data.error || "No cast found for this movie. You can add actors manually."}`);
+        setCastNotice(`⚠️ ${data.error || "No cast found for this movie. You can add actors manually with '+ Add Actor'."}`);
         setTimeout(() => setCastNotice(null), 5000);
       }
     } catch (err: any) {
@@ -2139,6 +2246,26 @@ export default function AdminMovieEditPage({
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+              {/* Add Actor Button */}
+              <button
+                type="button"
+                onClick={handleOpenAddModal}
+                className="btn-secondary"
+                style={{
+                  padding: "7px 16px",
+                  fontSize: "0.85rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                <Plus size={15} />
+                <span>Add Actor</span>
+              </button>
+
               {/* Auto Fetch Actors Button beside Add Actor */}
               <button
                 type="button"
@@ -2146,8 +2273,8 @@ export default function AdminMovieEditPage({
                 disabled={fetchingCast}
                 className="btn-primary"
                 style={{
-                  padding: "6px 14px",
-                  fontSize: "0.82rem",
+                  padding: "7px 16px",
+                  fontSize: "0.85rem",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "6px",
@@ -2155,54 +2282,44 @@ export default function AdminMovieEditPage({
                   boxShadow: "0 2px 10px rgba(229, 9, 20, 0.35)",
                   cursor: fetchingCast ? "not-allowed" : "pointer",
                   opacity: fetchingCast ? 0.75 : 1,
-                  borderRadius: "var(--radius-sm)",
+                  borderRadius: "8px",
                   color: "#ffffff",
                   fontWeight: 600,
                   border: "none",
+                  transition: "all 0.2s ease",
                 }}
-                title={`Automatically fetch cast with portraits and roles for "${title || "this movie"}"`}
+                title={`Auto-fetch actors with images and roles for "${title || "this movie"}"`}
               >
                 {fetchingCast ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                     <span>Fetching Actors...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles size={14} />
+                    <Sparkles size={15} />
                     <span>Auto Fetch Actors</span>
                   </>
                 )}
               </button>
 
-              {/* Add Actor Button */}
-              <button
-                type="button"
-                onClick={handleAddCastMember}
-                className="btn-secondary"
-                style={{ padding: "6px 14px", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "6px" }}
-              >
-                <Plus size={14} />
-                <span>Add Actor</span>
-              </button>
-
               {/* View Mode Toggle: Cards vs Inputs */}
               {cast.length > 0 && (
-                <div style={{ display: "inline-flex", background: "rgba(255, 255, 255, 0.06)", borderRadius: "6px", padding: "2px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                <div style={{ display: "inline-flex", background: "rgba(255, 255, 255, 0.06)", borderRadius: "8px", padding: "3px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
                   <button
                     type="button"
                     onClick={() => setCastViewMode("cards")}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: "0.75rem",
-                      background: castViewMode === "cards" ? "rgba(229, 9, 20, 0.25)" : "transparent",
+                      padding: "4px 10px",
+                      fontSize: "0.78rem",
+                      background: castViewMode === "cards" ? "rgba(229, 9, 20, 0.3)" : "transparent",
                       color: castViewMode === "cards" ? "#ffffff" : "var(--text-muted)",
                       border: "none",
-                      borderRadius: "4px",
+                      borderRadius: "6px",
                       cursor: "pointer",
                       fontWeight: 600,
                     }}
-                    title="Grid Card View (matching movie page)"
+                    title="2nd Image Format: Circular Photo Cards"
                   >
                     Cards
                   </button>
@@ -2210,16 +2327,16 @@ export default function AdminMovieEditPage({
                     type="button"
                     onClick={() => setCastViewMode("list")}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: "0.75rem",
-                      background: castViewMode === "list" ? "rgba(229, 9, 20, 0.25)" : "transparent",
+                      padding: "4px 10px",
+                      fontSize: "0.78rem",
+                      background: castViewMode === "list" ? "rgba(229, 9, 20, 0.3)" : "transparent",
                       color: castViewMode === "list" ? "#ffffff" : "var(--text-muted)",
                       border: "none",
-                      borderRadius: "4px",
+                      borderRadius: "6px",
                       cursor: "pointer",
                       fontWeight: 600,
                     }}
-                    title="Form Edit Inputs View"
+                    title="Inputs Table View"
                   >
                     Inputs
                   </button>
@@ -2247,39 +2364,58 @@ export default function AdminMovieEditPage({
           )}
 
           {cast.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-muted)" }}>
-              <p style={{ fontSize: "0.88rem", marginBottom: "14px", color: "var(--text-muted)" }}>
-                No cast members added yet. Click &quot;Auto Fetch Actors&quot; to auto-populate lead stars with portraits and roles for &quot;{title || "movie"}&quot;, or click &quot;Add Actor&quot; to add manually.
+            <div style={{ textAlign: "center", padding: "28px 16px", color: "var(--text-muted)", background: "rgba(255, 255, 255, 0.02)", borderRadius: "12px", border: "1px dashed rgba(255, 255, 255, 0.12)" }}>
+              <Users size={36} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
+              <p style={{ fontSize: "0.92rem", marginBottom: "6px", color: "#ffffff", fontWeight: 600 }}>
+                No Cast Members Added
               </p>
-              <button
-                type="button"
-                onClick={handleAutoFetchCast}
-                disabled={fetchingCast}
-                className="btn-primary"
-                style={{
-                  padding: "8px 20px",
-                  fontSize: "0.85rem",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
-                  borderRadius: "var(--radius-sm)",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                }}
-              >
-                {fetchingCast ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    <span>Fetching Actors...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={15} />
-                    <span>Auto Fetch Actors for {title || "Movie"}</span>
-                  </>
-                )}
-              </button>
+              <p style={{ fontSize: "0.82rem", marginBottom: "18px", color: "var(--text-muted)", maxWidth: "480px", margin: "0 auto 18px" }}>
+                Click &quot;Auto Fetch Actors&quot; to auto-populate lead stars with portraits and roles for &quot;{title || "movie"}&quot;, or click &quot;Add Actor&quot; to create actors manually.
+              </p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={handleOpenAddModal}
+                  className="btn-secondary"
+                  style={{ padding: "8px 18px", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "6px", borderRadius: "8px", fontWeight: 600 }}
+                >
+                  <Plus size={15} />
+                  <span>Add Actor Manually</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAutoFetchCast}
+                  disabled={fetchingCast}
+                  className="btn-primary"
+                  style={{
+                    padding: "8px 20px",
+                    fontSize: "0.85rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
+                    boxShadow: "0 2px 10px rgba(229, 9, 20, 0.35)",
+                    borderRadius: "8px",
+                    color: "#ffffff",
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: fetchingCast ? "not-allowed" : "pointer",
+                    opacity: fetchingCast ? 0.75 : 1,
+                  }}
+                >
+                  {fetchingCast ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin" />
+                      <span>Fetching Actors...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={15} />
+                      <span>Auto Fetch Actors for {title || "Movie"}</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           ) : castViewMode === "cards" ? (
             /* 2nd Image Format: Circular Photo Cards Grid */
@@ -2293,21 +2429,35 @@ export default function AdminMovieEditPage({
               {cast.map((actor, idx) => (
                 <div
                   key={idx}
+                  onClick={() => handleOpenEditModal(idx)}
                   style={{
                     position: "relative",
-                    background: "rgba(18, 22, 32, 0.85)",
+                    background: "rgba(18, 22, 32, 0.9)",
                     border: "1px solid rgba(255, 255, 255, 0.12)",
                     borderRadius: "14px",
                     padding: "16px 10px 14px",
                     textAlign: "center",
                     boxShadow: "0 6px 18px rgba(0, 0, 0, 0.35)",
-                    transition: "transform 0.2s ease, border-color 0.2s ease",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
                   }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(229, 9, 20, 0.5)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
+                  title="Click to edit actor manually"
                 >
                   {/* Remove Button on top-right */}
                   <button
                     type="button"
-                    onClick={() => handleRemoveCast(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveCast(idx);
+                    }}
                     style={{
                       position: "absolute",
                       top: "6px",
@@ -2315,7 +2465,7 @@ export default function AdminMovieEditPage({
                       width: "22px",
                       height: "22px",
                       borderRadius: "50%",
-                      background: "rgba(239, 68, 68, 0.2)",
+                      background: "rgba(239, 68, 68, 0.18)",
                       border: "1px solid rgba(239, 68, 68, 0.35)",
                       color: "#f87171",
                       display: "flex",
@@ -2323,7 +2473,7 @@ export default function AdminMovieEditPage({
                       justifyContent: "center",
                       cursor: "pointer",
                       padding: 0,
-                      transition: "all 0.15s ease",
+                      zIndex: 2,
                     }}
                     title="Remove Actor"
                   >
@@ -2369,7 +2519,7 @@ export default function AdminMovieEditPage({
                     )}
                   </div>
 
-                  {/* Name in bold white */}
+                  {/* Name in bold white (matching 2nd image) */}
                   <div
                     style={{
                       fontWeight: 700,
@@ -2386,7 +2536,7 @@ export default function AdminMovieEditPage({
                     {actor.actorName || "Actor Name"}
                   </div>
 
-                  {/* Role in muted text */}
+                  {/* Role in muted text (matching 2nd image) */}
                   <div
                     style={{
                       fontSize: "0.8rem",
@@ -2401,59 +2551,39 @@ export default function AdminMovieEditPage({
                     {actor.characterName || "Role / Character"}
                   </div>
 
-                  {/* Quick Inline Edit Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setEditingCastIndex(editingCastIndex === idx ? null : idx)}
-                    style={{
-                      marginTop: "8px",
-                      padding: "2px 8px",
-                      fontSize: "0.7rem",
-                      background: "rgba(255, 255, 255, 0.06)",
-                      border: "1px solid rgba(255, 255, 255, 0.12)",
-                      borderRadius: "4px",
-                      color: "#94a3b8",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {editingCastIndex === idx ? "Done" : "Edit"}
-                  </button>
-
-                  {/* Inline edit inputs if open */}
-                  {editingCastIndex === idx && (
-                    <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px", textAlign: "left" }}>
-                      <input
-                        type="text"
-                        placeholder="Actor Name"
-                        value={actor.actorName}
-                        onChange={(e) => handleUpdateCast(idx, "actorName", e.target.value)}
-                        className="input-field"
-                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Role / Character"
-                        value={actor.characterName}
-                        onChange={(e) => handleUpdateCast(idx, "characterName", e.target.value)}
-                        className="input-field"
-                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
-                      />
-                      <input
-                        type="url"
-                        placeholder="Photo URL"
-                        value={actor.photoUrl || ""}
-                        onChange={(e) => handleUpdateCast(idx, "photoUrl", e.target.value)}
-                        className="input-field"
-                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
-                      />
-                    </div>
-                  )}
+                  {/* Manual Edit Button */}
+                  <div style={{ marginTop: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenEditModal(idx);
+                      }}
+                      style={{
+                        padding: "3px 10px",
+                        fontSize: "0.72rem",
+                        fontWeight: 600,
+                        background: "rgba(255, 255, 255, 0.08)",
+                        border: "1px solid rgba(255, 255, 255, 0.16)",
+                        borderRadius: "6px",
+                        color: "#e2e8f0",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        cursor: "pointer",
+                      }}
+                      title="Click to edit actor manually"
+                    >
+                      <Edit2 size={10} />
+                      <span>Edit Manually</span>
+                    </button>
+                  </div>
                 </div>
               ))}
 
               {/* Add New Actor Card */}
               <div
-                onClick={handleAddCastMember}
+                onClick={handleOpenAddModal}
                 style={{
                   minHeight: "180px",
                   borderRadius: "14px",
@@ -2671,6 +2801,238 @@ export default function AdminMovieEditPage({
           </Link>
         </div>
       </form>
+
+      {/* Manual Actor Edit / Add Modal */}
+      {modalActor && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0, 0, 0, 0.82)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={() => setModalActor(null)}
+        >
+          <div
+            style={{
+              position: "relative",
+              maxWidth: "460px",
+              width: "100%",
+              background: "#121622",
+              border: "1px solid rgba(255, 255, 255, 0.16)",
+              borderRadius: "16px",
+              padding: "24px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.8)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Edit2 size={18} color="var(--primary)" />
+                <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, color: "#ffffff" }}>
+                  {modalActor.index === -1 ? "Add Cast Member" : "Edit Actor Details"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalActor(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  padding: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "6px",
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Live Card Preview (Matching 2nd Image Format) */}
+            <div
+              style={{
+                background: "#0a0c13",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "12px",
+                padding: "16px",
+                textAlign: "center",
+                marginBottom: "18px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "72px",
+                  height: "72px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  margin: "0 auto 8px",
+                  backgroundColor: "#161922",
+                  border: "2px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                {modalActor.photoUrl ? (
+                  <Image
+                    src={modalActor.photoUrl}
+                    alt={modalActor.actorName || "Actor Preview"}
+                    fill
+                    unoptimized
+                    sizes="72px"
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <Users size={28} />
+                  </div>
+                )}
+              </div>
+              <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#ffffff", marginBottom: "2px" }}>
+                {modalActor.actorName.trim() || "Actor Name"}
+              </div>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                {modalActor.characterName.trim() || "Role / Character in Movie"}
+              </div>
+            </div>
+
+            {/* Form Inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-muted)", display: "block", marginBottom: "6px" }}>
+                  Actor Name <span style={{ color: "var(--primary)" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="e.g. Ranbir Kapoor or Nitish Tiwari"
+                  value={modalActor.actorName}
+                  onChange={(e) => setModalActor({ ...modalActor, actorName: e.target.value })}
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-muted)", display: "block", marginBottom: "6px" }}>
+                  Character / Role
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="e.g. Lord Rama, Director, Producer"
+                  value={modalActor.characterName}
+                  onChange={(e) => setModalActor({ ...modalActor, characterName: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-muted)" }}>
+                    Photo URL or Upload
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => actorPhotoInputRef.current?.click()}
+                    disabled={uploadingActorPhoto}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "var(--primary)",
+                      fontSize: "0.78rem",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {uploadingActorPhoto ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                    <span>Upload Photo</span>
+                  </button>
+                  <input
+                    ref={actorPhotoInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleActorPhotoUpload}
+                  />
+                </div>
+                <input
+                  type="url"
+                  className="input-field"
+                  placeholder="https://... or paste image link"
+                  value={modalActor.photoUrl}
+                  onChange={(e) => setModalActor({ ...modalActor, photoUrl: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "22px" }}>
+              {modalActor.index >= 0 ? (
+                <button
+                  type="button"
+                  onClick={handleDeleteFromModal}
+                  style={{
+                    padding: "8px 14px",
+                    background: "rgba(239, 68, 68, 0.14)",
+                    border: "1px solid rgba(239, 68, 68, 0.35)",
+                    borderRadius: "8px",
+                    color: "#f87171",
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <Trash2 size={14} />
+                  <span>Remove</span>
+                </button>
+              ) : <div />}
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <button
+                  type="button"
+                  onClick={() => setModalActor(null)}
+                  className="btn-secondary"
+                  style={{ padding: "8px 16px", fontSize: "0.82rem", borderRadius: "8px" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveModalActor}
+                  className="btn-primary"
+                  style={{ padding: "8px 20px", fontSize: "0.82rem", borderRadius: "8px", fontWeight: 700 }}
+                >
+                  {modalActor.index === -1 ? "Add Actor" : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
