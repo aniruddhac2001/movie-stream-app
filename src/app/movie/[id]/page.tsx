@@ -562,11 +562,59 @@ export default function MovieDetailPage({
         </div>
       </div>
 
-      {/* Main Page Lower Content (Cast & More Like This) */}
+      {/* Main Page Lower Content */}
       <div className="container" style={{ paddingBottom: "80px", paddingTop: "40px" }}>
+        {/* Movie Screenshots & Scene Stills Gallery */}
+        {movie.screenshots && movie.screenshots.length > 0 && (
+          <div id="screenshots" style={{ marginTop: "10px", marginBottom: "44px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Camera size={20} color="var(--primary)" />
+                <h2 style={{ fontSize: "1.4rem", fontWeight: 800, margin: 0 }}>
+                  Screenshots
+                </h2>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: "18px",
+              }}
+            >
+              {movie.screenshots.map((shot, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedScreenshot(shot.url)}
+                  style={{
+                    position: "relative",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    border: "1px solid rgba(255, 255, 255, 0.14)",
+                    background: "#0c0e15",
+                    aspectRatio: "16 / 9",
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image
+                    src={shot.url}
+                    alt={shot.filename || `${movie.title} Screenshot ${idx + 1}`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Cast & Characters Section */}
         {cast.length > 0 && (
-          <div style={{ marginTop: "10px" }}>
+          <div style={{ marginTop: (movie.screenshots && movie.screenshots.length > 0) ? "20px" : "10px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
               <Users size={18} color="var(--primary)" />
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ffffff" }}>
@@ -678,7 +726,7 @@ export default function MovieDetailPage({
 
         {/* Crew & Production Section */}
         {crew.length > 0 && (
-          <div style={{ marginTop: cast.length > 0 ? "36px" : "10px" }}>
+          <div style={{ marginTop: "36px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
               <Clapperboard size={18} color="var(--primary)" />
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ffffff" }}>
@@ -782,54 +830,6 @@ export default function MovieDetailPage({
                   >
                     {member.role || "Crew Member"}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Movie Screenshots & Scene Stills Gallery */}
-        {movie.screenshots && movie.screenshots.length > 0 && (
-          <div id="screenshots" style={{ marginTop: (cast.length > 0 || crew.length > 0) ? "50px" : "10px", marginBottom: "50px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Camera size={20} color="var(--primary)" />
-                <h2 style={{ fontSize: "1.4rem", fontWeight: 800, margin: 0 }}>
-                  Screenshots
-                </h2>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                gap: "18px",
-              }}
-            >
-              {movie.screenshots.map((shot, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedScreenshot(shot.url)}
-                  style={{
-                    position: "relative",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    border: "1px solid rgba(255, 255, 255, 0.14)",
-                    background: "#0c0e15",
-                    aspectRatio: "16 / 9",
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
-                    cursor: "pointer",
-                  }}
-                >
-                  <Image
-                    src={shot.url}
-                    alt={shot.filename || `${movie.title} Screenshot ${idx + 1}`}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    style={{ objectFit: "cover" }}
-                  />
                 </div>
               ))}
             </div>
