@@ -57,12 +57,12 @@ export default function MovieDetailPage({
   useEffect(() => {
     const cached = getCachedMovie(movieId);
     if (cached) {
-      setMovie((prev) => prev || cached);
+      setMovie(cached);
       if (cached.cast && cached.cast.length > 0) {
-        setCast((prev) => (prev.length > 0 ? prev : cached.cast || []));
+        setCast(cached.cast);
       }
       if (cached.crew && cached.crew.length > 0) {
-        setCrew((prev) => (prev.length > 0 ? prev : cached.crew || []));
+        setCrew(cached.crew);
       }
       setLoading(false);
       dismissPreloader();

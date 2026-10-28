@@ -481,9 +481,10 @@ button, input, textarea, select {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   vertical-align: middle;
+  overflow: visible;
 }
 
 .trailer-btn-group:hover,
@@ -511,7 +512,7 @@ button, input, textarea, select {
   border-bottom-left-radius: 8px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   line-height: 1;
 }
@@ -555,7 +556,8 @@ button, input, textarea, select {
   background: rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
   align-self: center;
-  transition: background 0.25s ease;
+  transition: background 0.25s ease, opacity 0.3s ease;
+  animation: trailerDividerFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .trailer-btn-group:hover .trailer-btn-divider,
@@ -582,6 +584,7 @@ button, input, textarea, select {
   transition: background 0.18s ease, color 0.18s ease;
   white-space: nowrap;
   line-height: 1;
+  animation: trailerDropdownSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .trailer-btn-dropdown-toggle:hover,
@@ -604,6 +607,7 @@ button, input, textarea, select {
   color: #ffffff;
   line-height: 1;
   transition: all 0.25s ease;
+  animation: trailerPillPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .trailer-btn-group:hover .trailer-count-pill,
@@ -611,6 +615,51 @@ button, input, textarea, select {
   background: rgba(229, 9, 20, 0.25);
   border-color: rgba(229, 9, 20, 0.55);
   color: #ffffff;
+}
+
+@keyframes trailerDropdownSlideIn {
+  0% {
+    opacity: 0;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    max-width: 90px;
+    padding-left: 12px;
+    padding-right: 12px;
+    transform: scale(1);
+  }
+}
+
+@keyframes trailerDividerFadeIn {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes trailerPillPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .btn-watch-trailer {

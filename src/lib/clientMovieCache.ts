@@ -66,9 +66,6 @@ export function getMemoryMovies(): Movie[] | null {
  * Call only inside useEffect or event handlers (after hydration) to avoid SSR hydration mismatches.
  */
 export function getCachedMovies(): Movie[] | null {
-  if (ALL_MOVIES_CACHE && ALL_MOVIES_CACHE.length > 0) {
-    return ALL_MOVIES_CACHE;
-  }
   if (typeof window !== "undefined") {
     try {
       const stored = sessionStorage.getItem(STORAGE_KEY_ALL);
@@ -88,13 +85,13 @@ export function getCachedMovies(): Movie[] | null {
       // ignore parse errors
     }
   }
+  if (ALL_MOVIES_CACHE && ALL_MOVIES_CACHE.length > 0) {
+    return ALL_MOVIES_CACHE;
+  }
   return defaultMovies.length > 0 ? defaultMovies : null;
 }
 
 export function getCachedMovie(id: string): Movie | null {
-  const memory = getMemoryMovie(id);
-  if (memory) return memory;
-
   if (typeof window !== "undefined") {
     try {
       const stored = sessionStorage.getItem(`${STORAGE_PREFIX_MOVIE}${id}`);
@@ -109,5 +106,8 @@ export function getCachedMovie(id: string): Movie | null {
       // ignore
     }
   }
+
+  const memory = getMemoryMovie(id);
+  if (memory) return memory;
   return null;
 }

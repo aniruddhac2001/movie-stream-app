@@ -66,6 +66,18 @@
     "synopsis": "An ancient epic follows a young prince and princess whose marriage and subsequent exile mark the beginning of a legendary journey. Their story of love, duty and destiny sets the stage for greater challenges ahead.",
     "screenshots": [],
     "trailerUrl": "https://youtu.be/llLHwxkZ02k",
+    "trailers": [
+      {
+        "id": "trailer-1",
+        "name": "Official Trailer",
+        "url": "https://youtu.be/llLHwxkZ02k"
+      },
+      {
+        "id": "trailer-1793092202322-q65n",
+        "name": "Trailer 2",
+        "url": "https://youtu.be/BOJw7TYH-fE"
+      }
+    ],
     "bannerImage": [
       {
         "url": "https://images.ctfassets.net/3sjsytt3tkv5/1r5I3Vo3KGNk4VKbH9j4WN/6efdfa1cbe79d5fc4d2b8ee76f6bdcca/YT_Final_cover.png"
