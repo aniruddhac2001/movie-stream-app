@@ -2370,12 +2370,21 @@ export default function AdminMovieEditPage({
               No cast members added yet.
             </p>
           ) : castViewMode === "cards" ? (
-            /* 2nd Image Format: Circular Photo Cards Grid */
+            /* Horizontal Scroll Cards Row */
             <div
+              className="cast-horizontal-scroll"
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                display: "flex",
+                flexWrap: "nowrap",
                 gap: "16px",
+                overflowX: "auto",
+                overflowY: "hidden",
+                paddingBottom: "14px",
+                paddingTop: "6px",
+                paddingLeft: "4px",
+                paddingRight: "4px",
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
               }}
             >
               {cast.map((actor, idx) => (
@@ -2383,6 +2392,9 @@ export default function AdminMovieEditPage({
                   key={idx}
                   onClick={() => handleOpenEditModal(idx)}
                   style={{
+                    flex: "0 0 145px",
+                    width: "145px",
+                    scrollSnapAlign: "start",
                     position: "relative",
                     background: "rgba(18, 22, 32, 0.9)",
                     border: "1px solid rgba(255, 255, 255, 0.12)",
@@ -2544,7 +2556,10 @@ export default function AdminMovieEditPage({
               <div
                 onClick={handleOpenAddModal}
                 style={{
+                  flex: "0 0 145px",
+                  width: "145px",
                   minHeight: "180px",
+                  scrollSnapAlign: "start",
                   borderRadius: "14px",
                   border: "2px dashed rgba(255, 255, 255, 0.18)",
                   background: "rgba(255, 255, 255, 0.02)",

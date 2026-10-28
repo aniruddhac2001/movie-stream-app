@@ -560,16 +560,26 @@ export default function MovieDetailPage({
             </div>
 
             <div
+              className="cast-horizontal-scroll"
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                display: "flex",
+                flexWrap: "nowrap",
                 gap: "16px",
+                overflowX: "auto",
+                overflowY: "hidden",
+                paddingBottom: "14px",
+                paddingTop: "4px",
+                paddingLeft: "2px",
+                paddingRight: "2px",
+                WebkitOverflowScrolling: "touch",
               }}
             >
               {cast.map((actor, idx) => (
                 <div
                   key={idx}
                   style={{
+                    flex: "0 0 140px",
+                    width: "140px",
                     background: "rgba(20, 23, 34, 0.6)",
                     border: "1px solid var(--border-subtle)",
                     borderRadius: "var(--radius-md)",
@@ -661,16 +671,26 @@ export default function MovieDetailPage({
             </div>
 
             <div
+              className="cast-horizontal-scroll"
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                display: "flex",
+                flexWrap: "nowrap",
                 gap: "16px",
+                overflowX: "auto",
+                overflowY: "hidden",
+                paddingBottom: "14px",
+                paddingTop: "4px",
+                paddingLeft: "2px",
+                paddingRight: "2px",
+                WebkitOverflowScrolling: "touch",
               }}
             >
               {crew.map((member, idx) => (
                 <div
                   key={idx}
                   style={{
+                    flex: "0 0 140px",
+                    width: "140px",
                     background: "rgba(20, 23, 34, 0.6)",
                     border: "1px solid var(--border-subtle)",
                     borderRadius: "var(--radius-md)",
