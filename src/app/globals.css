@@ -469,6 +469,150 @@ button, input, textarea, select {
   color: #ffffff;
 }
 
+/* Watch Trailer Redesigned Split Button with Radiant Glow */
+.trailer-btn-group {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  height: 44px;
+  border-radius: 9px;
+  background: rgba(14, 18, 27, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+.trailer-btn-group:hover,
+.trailer-btn-group.dropdown-open {
+  border-color: rgba(229, 9, 20, 0.85);
+  background: rgba(24, 14, 20, 0.9);
+  box-shadow: 0 0 25px rgba(229, 9, 20, 0.5), 0 8px 24px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(229, 9, 20, 0.15);
+  transform: translateY(-2px);
+}
+
+.trailer-btn-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0 18px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  transition: background 0.18s ease, color 0.18s ease;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.trailer-btn-main.is-single {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding: 0 22px;
+}
+
+.trailer-btn-main:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.trailer-btn-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(229, 9, 20, 0.18);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  color: #ff3844;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.trailer-btn-group:hover .trailer-btn-icon-box,
+.trailer-btn-group.dropdown-open .trailer-btn-icon-box {
+  background: rgba(229, 9, 20, 0.35);
+  border-color: rgba(229, 9, 20, 0.9);
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.65);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.trailer-btn-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  align-self: center;
+  transition: background 0.25s ease;
+}
+
+.trailer-btn-group:hover .trailer-btn-divider,
+.trailer-btn-group.dropdown-open .trailer-btn-divider {
+  background: rgba(229, 9, 20, 0.5);
+}
+
+.trailer-btn-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  cursor: pointer;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  transition: background 0.18s ease, color 0.18s ease;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.trailer-btn-dropdown-toggle:hover,
+.trailer-btn-dropdown-toggle.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.trailer-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  transition: all 0.25s ease;
+}
+
+.trailer-btn-group:hover .trailer-count-pill,
+.trailer-btn-group.dropdown-open .trailer-count-pill {
+  background: rgba(229, 9, 20, 0.25);
+  border-color: rgba(229, 9, 20, 0.55);
+  color: #ffffff;
+}
+
 .btn-watch-trailer {
   display: inline-flex;
   align-items: center;
@@ -486,7 +630,8 @@ button, input, textarea, select {
 
 .btn-watch-trailer:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.45);
+  border-color: rgba(229, 9, 20, 0.7);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
   transform: translateY(-1px);
 }
 
