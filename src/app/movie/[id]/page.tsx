@@ -50,6 +50,7 @@ export default function MovieDetailPage({
   const [copied, setCopied] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [showTrailerDropdown, setShowTrailerDropdown] = useState(false);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const trailerDropdownRef = useRef<HTMLDivElement>(null);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -588,13 +589,20 @@ export default function MovieDetailPage({
                       border: "2px solid rgba(255, 255, 255, 0.1)",
                     }}
                   >
-                    {actor.photoUrl ? (
+                    {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
                       <Image
                         src={actor.photoUrl}
-                        alt={actor.actorName}
+                        alt=""
                         fill
+                        unoptimized
+                        referrerPolicy="no-referrer"
                         sizes="70px"
                         style={{ objectFit: "cover" }}
+                        onError={() => {
+                          if (actor.photoUrl) {
+                            setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
+                          }
+                        }}
                       />
                     ) : (
                       <div
@@ -605,6 +613,7 @@ export default function MovieDetailPage({
                           alignItems: "center",
                           justifyContent: "center",
                           color: "var(--text-muted)",
+                          background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
                         }}
                       >
                         <Users size={24} />
@@ -681,13 +690,20 @@ export default function MovieDetailPage({
                       border: "2px solid rgba(255, 255, 255, 0.1)",
                     }}
                   >
-                    {member.photoUrl ? (
+                    {member.photoUrl && !brokenImages[member.photoUrl] ? (
                       <Image
                         src={member.photoUrl}
-                        alt={member.name}
+                        alt=""
                         fill
+                        unoptimized
+                        referrerPolicy="no-referrer"
                         sizes="70px"
                         style={{ objectFit: "cover" }}
+                        onError={() => {
+                          if (member.photoUrl) {
+                            setBrokenImages((prev) => ({ ...prev, [member.photoUrl!]: true }));
+                          }
+                        }}
                       />
                     ) : (
                       <div
@@ -698,6 +714,7 @@ export default function MovieDetailPage({
                           alignItems: "center",
                           justifyContent: "center",
                           color: "var(--text-muted)",
+                          background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
                         }}
                       >
                         <Clapperboard size={24} />

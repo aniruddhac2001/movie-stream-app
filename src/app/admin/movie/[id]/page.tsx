@@ -92,6 +92,7 @@ export default function AdminMovieEditPage({
   const [castNotice, setCastNotice] = useState<string | null>(null);
   const [castViewMode, setCastViewMode] = useState<"cards" | "list">("cards");
   const [editingCastIndex, setEditingCastIndex] = useState<number | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [modalActor, setModalActor] = useState<{
     index: number;
     actorName: string;
@@ -547,6 +548,7 @@ export default function AdminMovieEditPage({
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.cast) && data.cast.length > 0) {
+        setBrokenImages({});
         setCast(data.cast);
         setCastViewMode("cards");
         setCastNotice(`✨ Auto-fetched ${data.cast.length} actors with image, name, and role! You can click "Edit Manually" on any actor to correct mistakes.`);
@@ -2364,59 +2366,9 @@ export default function AdminMovieEditPage({
           )}
 
           {cast.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "28px 16px", color: "var(--text-muted)", background: "rgba(255, 255, 255, 0.02)", borderRadius: "12px", border: "1px dashed rgba(255, 255, 255, 0.12)" }}>
-              <Users size={36} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
-              <p style={{ fontSize: "0.92rem", marginBottom: "6px", color: "#ffffff", fontWeight: 600 }}>
-                No Cast Members Added
-              </p>
-              <p style={{ fontSize: "0.82rem", marginBottom: "18px", color: "var(--text-muted)", maxWidth: "480px", margin: "0 auto 18px" }}>
-                Click &quot;Auto Fetch Actors&quot; to auto-populate lead stars with portraits and roles for &quot;{title || "movie"}&quot;, or click &quot;Add Actor&quot; to create actors manually.
-              </p>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  onClick={handleOpenAddModal}
-                  className="btn-secondary"
-                  style={{ padding: "8px 18px", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "6px", borderRadius: "8px", fontWeight: 600 }}
-                >
-                  <Plus size={15} />
-                  <span>Add Actor Manually</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAutoFetchCast}
-                  disabled={fetchingCast}
-                  className="btn-primary"
-                  style={{
-                    padding: "8px 20px",
-                    fontSize: "0.85rem",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    background: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
-                    boxShadow: "0 2px 10px rgba(229, 9, 20, 0.35)",
-                    borderRadius: "8px",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    border: "none",
-                    cursor: fetchingCast ? "not-allowed" : "pointer",
-                    opacity: fetchingCast ? 0.75 : 1,
-                  }}
-                >
-                  {fetchingCast ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      <span>Fetching Actors...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={15} />
-                      <span>Auto Fetch Actors for {title || "Movie"}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", textAlign: "center", padding: "16px 0", margin: 0 }}>
+              No cast members added yet.
+            </p>
           ) : castViewMode === "cards" ? (
             /* 2nd Image Format: Circular Photo Cards Grid */
             <div
@@ -2494,14 +2446,20 @@ export default function AdminMovieEditPage({
                       boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
                     }}
                   >
-                    {actor.photoUrl ? (
+                    {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
                       <Image
                         src={actor.photoUrl}
-                        alt={actor.actorName}
+                        alt=""
                         fill
                         unoptimized
+                        referrerPolicy="no-referrer"
                         sizes="72px"
                         style={{ objectFit: "cover" }}
+                        onError={() => {
+                          if (actor.photoUrl) {
+                            setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
+                          }
+                        }}
                       />
                     ) : (
                       <div
@@ -2512,6 +2470,7 @@ export default function AdminMovieEditPage({
                           alignItems: "center",
                           justifyContent: "center",
                           color: "var(--text-muted)",
+                          background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
                         }}
                       >
                         <Users size={28} />
@@ -2883,14 +2842,20 @@ export default function AdminMovieEditPage({
                   boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
                 }}
               >
-                {modalActor.photoUrl ? (
+                {modalActor.photoUrl && !brokenImages[modalActor.photoUrl] ? (
                   <Image
                     src={modalActor.photoUrl}
-                    alt={modalActor.actorName || "Actor Preview"}
+                    alt=""
                     fill
                     unoptimized
+                    referrerPolicy="no-referrer"
                     sizes="72px"
                     style={{ objectFit: "cover" }}
+                    onError={() => {
+                      if (modalActor.photoUrl) {
+                        setBrokenImages((prev) => ({ ...prev, [modalActor.photoUrl!]: true }));
+                      }
+                    }}
                   />
                 ) : (
                   <div
@@ -2901,6 +2866,7 @@ export default function AdminMovieEditPage({
                       alignItems: "center",
                       justifyContent: "center",
                       color: "var(--text-muted)",
+                      background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
                     }}
                   >
                     <Users size={28} />

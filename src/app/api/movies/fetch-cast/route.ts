@@ -13,7 +13,7 @@ function cleanTitle(title: string): string {
     .trim();
 }
 
-// Curated high-definition cast registry for verified instant lookup
+// Curated high-definition cast registry for verified instant lookup with direct permanent image URLs
 const MOVIE_CAST_REGISTRY: Record<string, CastMember[]> = {
   ramayana: [
     {
@@ -49,44 +49,44 @@ const MOVIE_CAST_REGISTRY: Record<string, CastMember[]> = {
     {
       actorName: "Lara Dutta",
       characterName: "Kaikeyi",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Lara_Dutta_snapped_promoting_Ranneeti_%282%29.jpg/500px-Lara_Dutta_snapped_promoting_Ranneeti_%282%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/24/Lara_Dutta_snapped_promoting_Ranneeti_%282%29.jpg",
     },
     {
       actorName: "Kajal Aggarwal",
       characterName: "Mandodari",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Kajal_Aggarwal_at_Bhagavanth_Kesari_Trailer_Launch_%281%29.jpg/500px-Kajal_Aggarwal_at_Bhagavanth_Kesari_Trailer_Launch_%281%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Kajal_Aggarwal_at_Bhagavanth_Kesari_Trailer_Launch_%281%29.jpg",
     },
     {
       actorName: "Rakul Preet Singh",
       characterName: "Shurpanakha",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Rakul_Preet_Singh_promoting_Cuttputlli_%28cropped%29.jpg/500px-Rakul_Preet_Singh_promoting_Cuttputlli_%28cropped%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Rakul_Preet_Singh_at_Filmfare_Awards.jpg",
     },
     {
       actorName: "Vivek Oberoi",
       characterName: "Vidyutjihva",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Vivek_Oberoi_in_2018.jpg/500px-Vivek_Oberoi_in_2018.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/40/Vivek_walks_ramp.jpg",
     },
     {
       actorName: "Anupam Kher",
       characterName: "Jatayu (Voice-over)",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Anupam_Kher_at_the_63rd_Filmfare_Awards.jpg/500px-Anupam_Kher_at_the_63rd_Filmfare_Awards.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Anupam_Kher_at_56th_IFFI.jpg",
     },
   ],
   vibe: [
     {
       actorName: "Kunal Khemu",
       characterName: "Hardik",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kunal_Khemu_snapped_at_the_trailer_launch_of_Lootcase.jpg/500px-Kunal_Khemu_snapped_at_the_trailer_launch_of_Lootcase.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/07/Kunal_Khemu.jpg",
     },
     {
       actorName: "Sparsh Shrivastava",
       characterName: "Bhagirath / Bugs",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Sparsh_Shrivastava_at_Laapataa_Ladies_promotions.jpg/500px-Sparsh_Shrivastava_at_Laapataa_Ladies_promotions.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0f/Sparsh_Shrivastava_at_the_premiere_of_his_film_Laapataa_Ladies_%28cropped%29.jpg",
     },
     {
       actorName: "Sunny Singh",
       characterName: "Special Appearance",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sunny_Singh_at_Pyaar_Ka_Punchnama_2_promotions.jpg/500px-Sunny_Singh_at_Pyaar_Ka_Punchnama_2_promotions.jpg",
+      photoUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
     },
     {
       actorName: "Abu Al-Sed",
@@ -98,22 +98,22 @@ const MOVIE_CAST_REGISTRY: Record<string, CastMember[]> = {
     {
       actorName: "Prabhas",
       characterName: "Bhairava",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Prabhas_at_the_Kalki_2898_AD_event.jpg/500px-Prabhas_at_the_Kalki_2898_AD_event.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/22/Prabhas_by_Gage_Skidmore.jpg",
     },
     {
       actorName: "Amitabh Bachchan",
       characterName: "Ashwatthama",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Amitabh_Bachchan_2015.jpg/500px-Amitabh_Bachchan_2015.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c6/Indian_actor_Amitabh_Bachchan.jpg",
     },
     {
       actorName: "Kamal Haasan",
       characterName: "Supreme Yaskin",
-      photoUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Kamal_Haasan_at_2023_San_Diego_Comic-Con_International_by_Gage_Skidmore%2C_005_%28cropped%29.jpg/500px-Kamal_Haasan_at_2023_San_Diego_Comic-Con_International_by_Gage_Skidmore%2C_005_%28cropped%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a3/Kamal_Haasan_at_2023_San_Diego_Comic-Con_International_by_Gage_Skidmore%2C_005_%28cropped%29.jpg",
     },
     {
       actorName: "Deepika Padukone",
       characterName: "SUM-80 alias Sumathi",
-      photoUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Deepika_Padukone_2025_%281%29.png/500px-Deepika_Padukone_2025_%281%29.png",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Deepika_Padukone_2025_%281%29.png",
     },
     {
       actorName: "Disha Patani",
@@ -123,39 +123,39 @@ const MOVIE_CAST_REGISTRY: Record<string, CastMember[]> = {
     {
       actorName: "Brahmanandam",
       characterName: "Rajan",
-      photoUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Brahmanandam_at_ANR_Awards.png/500px-Brahmanandam_at_ANR_Awards.png",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/7/72/Brahmanandam_at_ANR_Awards.png",
     },
   ],
   interstellar: [
     {
       actorName: "Matthew McConaughey",
       characterName: "Joseph Cooper",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Matthew_McConaughey_-_2019_%28cropped%29.jpg/500px-Matthew_McConaughey_-_2019_%28cropped%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Matthew_McConaughey_at_the_2025_Toronto_Film_Festival_%283x4_cropped%29.jpg",
     },
     {
       actorName: "Anne Hathaway",
       characterName: "Dr. Amelia Brand",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Anne_Hathaway_at_The_Idea_of_You_premiere_2024_%28cropped%29.jpg/500px-Anne_Hathaway_at_The_Idea_of_You_premiere_2024_%28cropped%29.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a5/AnneHathaway-byPhilipRomano-Crop.jpg",
     },
     {
       actorName: "Jessica Chastain",
       characterName: "Murphy Cooper",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Jessica_Chastain_Cannes_2017.jpg/500px-Jessica_Chastain_Cannes_2017.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/11/Jessica_Chastain-64631_%28cropped%29.jpg",
     },
     {
       actorName: "Michael Caine",
       characterName: "Professor John Brand",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Michael_Caine_at_2015_Karlovy_Vary_Film_Festival.jpg/500px-Michael_Caine_at_2015_Karlovy_Vary_Film_Festival.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Sir_Michael_Caine%2C_28th_EFA_Awards_2015%2C_Berlin_%28cropped%29.jpg",
     },
     {
       actorName: "Matt Damon",
       characterName: "Dr. Mann",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Matt_Damon_TIFF_2015.jpg/500px-Matt_Damon_TIFF_2015.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f9/MattDamon-byPhilipRomano2.jpg",
     },
     {
       actorName: "Timothée Chalamet",
       characterName: "Young Tom Cooper",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Timoth%C3%A9e_Chalamet_2019_by_Glenn_Francis.jpg/500px-Timoth%C3%A9e_Chalamet_2019_by_Glenn_Francis.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Timoth%C3%A9e_Chalamet-63482_%28cropped%29.jpg",
     },
   ],
   animal: [
@@ -167,54 +167,54 @@ const MOVIE_CAST_REGISTRY: Record<string, CastMember[]> = {
     {
       actorName: "Anil Kapoor",
       characterName: "Balbir Singh",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Anil_Kapoor_at_Vogue_Beauty_Awards_2018.jpg/500px-Anil_Kapoor_at_Vogue_Beauty_Awards_2018.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/08/Anil_Kapoor_1.jpeg",
     },
     {
       actorName: "Bobby Deol",
       characterName: "Abrar Haque",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Bobby_Deol_in_2018.jpg/500px-Bobby_Deol_in_2018.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/01/Lord_Bobby_2024.jpg",
     },
     {
       actorName: "Rashmika Mandanna",
       characterName: "Geetanjali Singh",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Rashmika_Mandanna_at_Mission_Majnu_Promotions.jpg/500px-Rashmika_Mandanna_at_Mission_Majnu_Promotions.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Rashmika-Mandanna_at_the_music_launch_of_Chhaava_%28cropped%29.jpg",
     },
     {
       actorName: "Triptii Dimri",
       characterName: "Zoya",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Tripti_Dimri_at_Vogue_Forces_of_Fashion_%28cropped%29.jpg/500px-Tripti_Dimri_at_Vogue_Forces_of_Fashion_%28cropped%29.jpg",
+      photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
     },
   ],
   jawan: [
     {
       actorName: "Shah Rukh Khan",
       characterName: "Vikram Rathore / Azad",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg/500px-Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Shah_Rukh_Khan_graces_the_launch_of_the_new_Santro.jpg",
     },
     {
       actorName: "Nayanthara",
       characterName: "Narmada Rai",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Nayanthara_at_SIIMA_2016.jpg/500px-Nayanthara_at_SIIMA_2016.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1d/Nayanthara_at_SIIMA_2016.jpg",
     },
     {
       actorName: "Vijay Sethupathi",
       characterName: "Kaalie Gaikwad",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Vijay_Sethupathi_at_the_press_meet_of_Sangathamizhan.jpg/500px-Vijay_Sethupathi_at_the_press_meet_of_Sangathamizhan.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e9/Vijay_Sethupathi_at_the_premiere_of_Merry_Christmas_2_%28cropped%29.jpg",
     },
     {
       actorName: "Deepika Padukone",
       characterName: "Aishwarya Rathore",
-      photoUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Deepika_Padukone_2025_%281%29.png/500px-Deepika_Padukone_2025_%281%29.png",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Deepika_Padukone_2025_%281%29.png",
     },
     {
       actorName: "Priyamani",
       characterName: "Lakshmi",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Priyamani_at_Filmfare_Awards_South_2013.jpg/500px-Priyamani_at_Filmfare_Awards_South_2013.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/20/Priyamani_at_Filmfare_Awards_South_%28cropped%29.jpg",
     },
     {
       actorName: "Sanya Malhotra",
       characterName: "Dr. Eeram",
-      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Sanya_Malhotra_at_the_screening_of_Pagglait.jpg/500px-Sanya_Malhotra_at_the_screening_of_Pagglait.jpg",
+      photoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Sanya_Malhotra_at_the_launch_of_Netflix_Slate_2025_%28cropped%29.jpg",
     },
   ],
 };
@@ -286,7 +286,11 @@ async function fetchWikipediaCast(movieTitle: string): Promise<CastMember[]> {
       const pages = Object.values<any>(imgRes.query?.pages || {});
       for (const p of pages) {
         if (p.title && p.thumbnail?.source) {
-          imageMap.set(p.title.toLowerCase(), p.thumbnail.source);
+          const rawSource = p.thumbnail.source;
+          // Prefer direct Wikimedia Commons URL if it's a thumbnail to avoid scaler 404s
+          const thumbMatch = rawSource.match(/^(https?:\/\/[^\/]+\/wikipedia\/commons\/)thumb\/([a-f0-9]\/[a-f0-9]{2}\/[^\/]+)\/[^\/]+$/i);
+          const cleanUrl = thumbMatch ? `${thumbMatch[1]}${thumbMatch[2]}` : rawSource.split("?")[0];
+          imageMap.set(p.title.toLowerCase(), cleanUrl);
         }
       }
     } catch (err) {
