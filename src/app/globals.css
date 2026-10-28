@@ -73,24 +73,33 @@ html, body {
   background: #2e3447;
 }
 
-/* Horizontal Cast & Crew Scrollbar */
+/* Horizontal Cast & Crew Scrollbar - Hidden when idle, visible only while actively scrolling */
 .cast-horizontal-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(229, 9, 20, 0.45) rgba(255, 255, 255, 0.04);
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
 }
 .cast-horizontal-scroll::-webkit-scrollbar {
   height: 6px;
 }
 .cast-horizontal-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04);
+  background: transparent;
   border-radius: 999px;
 }
 .cast-horizontal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(229, 9, 20, 0.45);
+  background: transparent;
   border-radius: 999px;
-  transition: background 0.2s ease;
+  transition: background 0.3s ease;
 }
-.cast-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+
+/* Reveal bar only during active scrolling */
+.cast-horizontal-scroll.is-scrolling {
+  scrollbar-color: rgba(229, 9, 20, 0.7) transparent;
+}
+.cast-horizontal-scroll.is-scrolling::-webkit-scrollbar-thumb {
+  background: rgba(229, 9, 20, 0.7);
+}
+.cast-horizontal-scroll.is-scrolling::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
 

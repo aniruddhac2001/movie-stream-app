@@ -93,6 +93,18 @@ export default function AdminMovieEditPage({
   const [castViewMode, setCastViewMode] = useState<"cards" | "list">("cards");
   const [editingCastIndex, setEditingCastIndex] = useState<number | null>(null);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+  const [isCastScrolling, setIsCastScrolling] = useState(false);
+  const castScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCastScroll = () => {
+    setIsCastScrolling(true);
+    if (castScrollTimeoutRef.current) {
+      clearTimeout(castScrollTimeoutRef.current);
+    }
+    castScrollTimeoutRef.current = setTimeout(() => {
+      setIsCastScrolling(false);
+    }, 1000);
+  };
   const [modalActor, setModalActor] = useState<{
     index: number;
     actorName: string;
@@ -2372,7 +2384,8 @@ export default function AdminMovieEditPage({
           ) : castViewMode === "cards" ? (
             /* Horizontal Scroll Cards Row */
             <div
-              className="cast-horizontal-scroll"
+              onScroll={handleCastScroll}
+              className={`cast-horizontal-scroll ${isCastScrolling ? "is-scrolling" : ""}`}
               style={{
                 display: "flex",
                 flexWrap: "nowrap",

@@ -51,6 +51,21 @@ export default function MovieDetailPage({
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [showTrailerDropdown, setShowTrailerDropdown] = useState(false);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+  const [isCastScrolling, setIsCastScrolling] = useState(false);
+  const castScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleCastScroll = () => {
+    setIsCastScrolling(true);
+    if (castScrollTimeoutRef.current) clearTimeout(castScrollTimeoutRef.current);
+    castScrollTimeoutRef.current = setTimeout(() => setIsCastScrolling(false), 1000);
+  };
+
+  const [isCrewScrolling, setIsCrewScrolling] = useState(false);
+  const crewScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleCrewScroll = () => {
+    setIsCrewScrolling(true);
+    if (crewScrollTimeoutRef.current) clearTimeout(crewScrollTimeoutRef.current);
+    crewScrollTimeoutRef.current = setTimeout(() => setIsCrewScrolling(false), 1000);
+  };
   const trailerDropdownRef = useRef<HTMLDivElement>(null);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -560,7 +575,8 @@ export default function MovieDetailPage({
             </div>
 
             <div
-              className="cast-horizontal-scroll"
+              onScroll={handleCastScroll}
+              className={`cast-horizontal-scroll ${isCastScrolling ? "is-scrolling" : ""}`}
               style={{
                 display: "flex",
                 flexWrap: "nowrap",
@@ -671,7 +687,8 @@ export default function MovieDetailPage({
             </div>
 
             <div
-              className="cast-horizontal-scroll"
+              onScroll={handleCrewScroll}
+              className={`cast-horizontal-scroll ${isCrewScrolling ? "is-scrolling" : ""}`}
               style={{
                 display: "flex",
                 flexWrap: "nowrap",
