@@ -2417,6 +2417,9 @@ export default function AdminMovieEditPage({
                     boxShadow: "0 6px 18px rgba(0, 0, 0, 0.35)",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = "rgba(229, 9, 20, 0.5)";
@@ -2457,82 +2460,88 @@ export default function AdminMovieEditPage({
                     <Trash2 size={11} />
                   </button>
 
-                  {/* Circular Avatar matching 2nd image */}
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "72px",
-                      height: "72px",
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      margin: "0 auto 10px",
-                      backgroundColor: "#161922",
-                      border: "2px solid rgba(255, 255, 255, 0.18)",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-                    }}
-                  >
-                    {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
-                      <Image
-                        src={actor.photoUrl}
-                        alt=""
-                        fill
-                        unoptimized
-                        referrerPolicy="no-referrer"
-                        sizes="72px"
-                        style={{ objectFit: "cover" }}
-                        onError={() => {
-                          if (actor.photoUrl) {
-                            setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "var(--text-muted)",
-                          background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
-                        }}
-                      >
-                        <Users size={28} />
-                      </div>
-                    )}
-                  </div>
+                  <div>
+                    {/* Circular Avatar matching 2nd image */}
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "72px",
+                        height: "72px",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                        margin: "0 auto 10px",
+                        backgroundColor: "#161922",
+                        border: "2px solid rgba(255, 255, 255, 0.18)",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+                      }}
+                    >
+                      {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
+                        <Image
+                          src={actor.photoUrl}
+                          alt=""
+                          fill
+                          unoptimized
+                          referrerPolicy="no-referrer"
+                          sizes="72px"
+                          style={{ objectFit: "cover" }}
+                          onError={() => {
+                            if (actor.photoUrl) {
+                              setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "var(--text-muted)",
+                            background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
+                          }}
+                        >
+                          <Users size={28} />
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Name in bold white (matching 2nd image) */}
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: "0.95rem",
-                      color: "#ffffff",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      lineHeight: 1.25,
-                      marginBottom: "3px",
-                    }}
-                    title={actor.actorName}
-                  >
-                    {actor.actorName || "Actor Name"}
-                  </div>
+                    {/* Name in bold white (matching 2nd image) */}
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "0.95rem",
+                        color: "#ffffff",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        wordBreak: "break-word",
+                        lineHeight: 1.25,
+                        marginBottom: "4px",
+                      }}
+                      title={actor.actorName}
+                    >
+                      {actor.actorName || "Actor Name"}
+                    </div>
 
-                  {/* Role in muted text (matching 2nd image) */}
-                  <div
-                    style={{
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      lineHeight: 1.2,
-                    }}
-                    title={actor.characterName}
-                  >
-                    {actor.characterName || "Role / Character"}
+                    {/* Role in muted text (matching 2nd image) */}
+                    <div
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "var(--text-muted)",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        wordBreak: "break-word",
+                        lineHeight: 1.25,
+                      }}
+                      title={actor.characterName}
+                    >
+                      {actor.characterName || "Role / Character"}
+                    </div>
                   </div>
 
                   {/* Manual Edit Button */}
@@ -2901,10 +2910,34 @@ export default function AdminMovieEditPage({
                   </div>
                 )}
               </div>
-              <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#ffffff", marginBottom: "2px" }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  color: "#ffffff",
+                  marginBottom: "4px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  wordBreak: "break-word",
+                  lineHeight: 1.25,
+                }}
+              >
                 {modalActor.actorName.trim() || "Actor Name"}
               </div>
-              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  wordBreak: "break-word",
+                  lineHeight: 1.25,
+                }}
+              >
                 {modalActor.characterName.trim() || "Role / Character in Movie"}
               </div>
             </div>

@@ -649,6 +649,8 @@ export default function MovieDetailPage({
                     borderRadius: "var(--radius-md)",
                     padding: "12px",
                     textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <div
@@ -699,10 +701,14 @@ export default function MovieDetailPage({
                     style={{
                       fontWeight: 700,
                       fontSize: "0.85rem",
-                      whiteSpace: "nowrap",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      wordBreak: "break-word",
+                      lineHeight: 1.25,
                     }}
+                    title={actor.actorName}
                   >
                     {actor.actorName}
                   </div>
@@ -710,11 +716,15 @@ export default function MovieDetailPage({
                     style={{
                       fontSize: "0.75rem",
                       color: "var(--text-muted)",
-                      whiteSpace: "nowrap",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      marginTop: "2px",
+                      wordBreak: "break-word",
+                      lineHeight: 1.25,
+                      marginTop: "4px",
                     }}
+                    title={actor.characterName}
                   >
                     {actor.characterName || "Cast Member"}
                   </div>
@@ -761,6 +771,8 @@ export default function MovieDetailPage({
                     borderRadius: "var(--radius-md)",
                     padding: "12px",
                     textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <div
@@ -811,10 +823,14 @@ export default function MovieDetailPage({
                     style={{
                       fontWeight: 700,
                       fontSize: "0.85rem",
-                      whiteSpace: "nowrap",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      wordBreak: "break-word",
+                      lineHeight: 1.25,
                     }}
+                    title={member.name}
                   >
                     {member.name}
                   </div>
@@ -822,11 +838,15 @@ export default function MovieDetailPage({
                     style={{
                       fontSize: "0.75rem",
                       color: "var(--text-muted)",
-                      whiteSpace: "nowrap",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      marginTop: "2px",
+                      wordBreak: "break-word",
+                      lineHeight: 1.25,
+                      marginTop: "4px",
                     }}
+                    title={member.role}
                   >
                     {member.role || "Crew Member"}
                   </div>
