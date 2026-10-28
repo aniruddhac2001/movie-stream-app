@@ -10,6 +10,7 @@ import {
   Save,
   Plus,
   Trash2,
+  Edit2,
   Upload,
   Film,
   Sparkles,
@@ -86,6 +87,10 @@ export default function AdminMovieEditPage({
   const [rating, setRating] = useState<string>("");
   const [duration, setDuration] = useState("2h 15m");
   const [cast, setCast] = useState<CastMember[]>([]);
+  const [fetchingCast, setFetchingCast] = useState(false);
+  const [castNotice, setCastNotice] = useState<string | null>(null);
+  const [castViewMode, setCastViewMode] = useState<"cards" | "list">("cards");
+  const [editingCastIndex, setEditingCastIndex] = useState<number | null>(null);
   const [crew, setCrew] = useState<CrewMember[]>([]);
   const [screenshots, setScreenshots] = useState<ImageItem[]>([]);
   const [screenshotUrlInput, setScreenshotUrlInput] = useState("");
@@ -412,6 +417,44 @@ export default function AdminMovieEditPage({
 
   const handleRemoveCast = (index: number) => {
     setCast((prev) => prev.filter((_, i) => i !== index));
+    if (editingCastIndex === index) {
+      setEditingCastIndex(null);
+    }
+  };
+
+  const handleAutoFetchCast = async () => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle || trimmedTitle.length < 2) {
+      setCastNotice("⚠️ Please enter a movie title above first to auto-fetch actors.");
+      setTimeout(() => setCastNotice(null), 4000);
+      return;
+    }
+
+    setFetchingCast(true);
+    setCastNotice(null);
+    try {
+      const res = await fetch("/api/movies/fetch-cast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmedTitle }),
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.cast) && data.cast.length > 0) {
+        setCast(data.cast);
+        setCastViewMode("cards");
+        setCastNotice(`✨ Auto-fetched ${data.cast.length} actors with photos and roles for "${trimmedTitle}"!`);
+        setTimeout(() => setCastNotice(null), 6000);
+      } else {
+        setCastNotice(`⚠️ ${data.error || "No cast found for this movie. You can add actors manually."}`);
+        setTimeout(() => setCastNotice(null), 5000);
+      }
+    } catch (err: any) {
+      console.error("Auto fetch cast error:", err);
+      setCastNotice("❌ Error fetching actors. Please try again or add manually.");
+      setTimeout(() => setCastNotice(null), 5000);
+    } finally {
+      setFetchingCast(false);
+    }
   };
 
   const handleAddCrewMember = () => {
@@ -2074,27 +2117,387 @@ export default function AdminMovieEditPage({
             gap: "18px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Users size={18} color="var(--primary)" />
               <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Top Cast Members</h2>
+              {cast.length > 0 && (
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "2px 8px",
+                    borderRadius: "999px",
+                    background: "rgba(229, 9, 20, 0.12)",
+                    color: "var(--primary)",
+                    border: "1px solid rgba(229, 9, 20, 0.25)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {cast.length} {cast.length === 1 ? "Actor" : "Actors"}
+                </span>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={handleAddCastMember}
-              className="btn-secondary"
-              style={{ padding: "6px 14px", fontSize: "0.8rem" }}
-            >
-              <Plus size={14} />
-              <span>Add Actor</span>
-            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+              {/* Auto Fetch Actors Button beside Add Actor */}
+              <button
+                type="button"
+                onClick={handleAutoFetchCast}
+                disabled={fetchingCast}
+                className="btn-primary"
+                style={{
+                  padding: "6px 14px",
+                  fontSize: "0.82rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
+                  boxShadow: "0 2px 10px rgba(229, 9, 20, 0.35)",
+                  cursor: fetchingCast ? "not-allowed" : "pointer",
+                  opacity: fetchingCast ? 0.75 : 1,
+                  borderRadius: "var(--radius-sm)",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  border: "none",
+                }}
+                title={`Automatically fetch cast with portraits and roles for "${title || "this movie"}"`}
+              >
+                {fetchingCast ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Fetching Actors...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={14} />
+                    <span>Auto Fetch Actors</span>
+                  </>
+                )}
+              </button>
+
+              {/* Add Actor Button */}
+              <button
+                type="button"
+                onClick={handleAddCastMember}
+                className="btn-secondary"
+                style={{ padding: "6px 14px", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: "6px" }}
+              >
+                <Plus size={14} />
+                <span>Add Actor</span>
+              </button>
+
+              {/* View Mode Toggle: Cards vs Inputs */}
+              {cast.length > 0 && (
+                <div style={{ display: "inline-flex", background: "rgba(255, 255, 255, 0.06)", borderRadius: "6px", padding: "2px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                  <button
+                    type="button"
+                    onClick={() => setCastViewMode("cards")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "0.75rem",
+                      background: castViewMode === "cards" ? "rgba(229, 9, 20, 0.25)" : "transparent",
+                      color: castViewMode === "cards" ? "#ffffff" : "var(--text-muted)",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                    title="Grid Card View (matching movie page)"
+                  >
+                    Cards
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCastViewMode("list")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "0.75rem",
+                      background: castViewMode === "list" ? "rgba(229, 9, 20, 0.25)" : "transparent",
+                      color: castViewMode === "list" ? "#ffffff" : "var(--text-muted)",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                    title="Form Edit Inputs View"
+                  >
+                    Inputs
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
+          {castNotice && (
+            <div
+              style={{
+                padding: "8px 12px",
+                background: "rgba(229, 9, 20, 0.12)",
+                border: "1px solid rgba(229, 9, 20, 0.3)",
+                borderRadius: "var(--radius-sm)",
+                fontSize: "0.82rem",
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span>{castNotice}</span>
+            </div>
+          )}
+
           {cast.length === 0 ? (
-            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", textAlign: "center", padding: "16px 0" }}>
-              No cast members added yet. Click &quot;Add Actor&quot; above to list lead stars.
-            </p>
+            <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-muted)" }}>
+              <p style={{ fontSize: "0.88rem", marginBottom: "14px", color: "var(--text-muted)" }}>
+                No cast members added yet. Click &quot;Auto Fetch Actors&quot; to auto-populate lead stars with portraits and roles for &quot;{title || "movie"}&quot;, or click &quot;Add Actor&quot; to add manually.
+              </p>
+              <button
+                type="button"
+                onClick={handleAutoFetchCast}
+                disabled={fetchingCast}
+                className="btn-primary"
+                style={{
+                  padding: "8px 20px",
+                  fontSize: "0.85rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "linear-gradient(135deg, #e50914 0%, #b81d24 100%)",
+                  borderRadius: "var(--radius-sm)",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                }}
+              >
+                {fetchingCast ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>Fetching Actors...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={15} />
+                    <span>Auto Fetch Actors for {title || "Movie"}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          ) : castViewMode === "cards" ? (
+            /* 2nd Image Format: Circular Photo Cards Grid */
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              {cast.map((actor, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    position: "relative",
+                    background: "rgba(18, 22, 32, 0.85)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    borderRadius: "14px",
+                    padding: "16px 10px 14px",
+                    textAlign: "center",
+                    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.35)",
+                    transition: "transform 0.2s ease, border-color 0.2s ease",
+                  }}
+                >
+                  {/* Remove Button on top-right */}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCast(idx)}
+                    style={{
+                      position: "absolute",
+                      top: "6px",
+                      right: "6px",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      background: "rgba(239, 68, 68, 0.2)",
+                      border: "1px solid rgba(239, 68, 68, 0.35)",
+                      color: "#f87171",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      padding: 0,
+                      transition: "all 0.15s ease",
+                    }}
+                    title="Remove Actor"
+                  >
+                    <Trash2 size={11} />
+                  </button>
+
+                  {/* Circular Avatar matching 2nd image */}
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "72px",
+                      height: "72px",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      margin: "0 auto 10px",
+                      backgroundColor: "#161922",
+                      border: "2px solid rgba(255, 255, 255, 0.18)",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    {actor.photoUrl ? (
+                      <Image
+                        src={actor.photoUrl}
+                        alt={actor.actorName}
+                        fill
+                        unoptimized
+                        sizes="72px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        <Users size={28} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Name in bold white */}
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "0.95rem",
+                      color: "#ffffff",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: 1.25,
+                      marginBottom: "3px",
+                    }}
+                    title={actor.actorName}
+                  >
+                    {actor.actorName || "Actor Name"}
+                  </div>
+
+                  {/* Role in muted text */}
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-muted)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: 1.2,
+                    }}
+                    title={actor.characterName}
+                  >
+                    {actor.characterName || "Role / Character"}
+                  </div>
+
+                  {/* Quick Inline Edit Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setEditingCastIndex(editingCastIndex === idx ? null : idx)}
+                    style={{
+                      marginTop: "8px",
+                      padding: "2px 8px",
+                      fontSize: "0.7rem",
+                      background: "rgba(255, 255, 255, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      borderRadius: "4px",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {editingCastIndex === idx ? "Done" : "Edit"}
+                  </button>
+
+                  {/* Inline edit inputs if open */}
+                  {editingCastIndex === idx && (
+                    <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px", textAlign: "left" }}>
+                      <input
+                        type="text"
+                        placeholder="Actor Name"
+                        value={actor.actorName}
+                        onChange={(e) => handleUpdateCast(idx, "actorName", e.target.value)}
+                        className="input-field"
+                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Role / Character"
+                        value={actor.characterName}
+                        onChange={(e) => handleUpdateCast(idx, "characterName", e.target.value)}
+                        className="input-field"
+                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
+                      />
+                      <input
+                        type="url"
+                        placeholder="Photo URL"
+                        value={actor.photoUrl || ""}
+                        onChange={(e) => handleUpdateCast(idx, "photoUrl", e.target.value)}
+                        className="input-field"
+                        style={{ fontSize: "0.75rem", padding: "4px 8px" }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Add New Actor Card */}
+              <div
+                onClick={handleAddCastMember}
+                style={{
+                  minHeight: "180px",
+                  borderRadius: "14px",
+                  border: "2px dashed rgba(255, 255, 255, 0.18)",
+                  background: "rgba(255, 255, 255, 0.02)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  color: "var(--text-muted)",
+                  padding: "16px",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--primary)";
+                  e.currentTarget.style.color = "#ffffff";
+                  e.currentTarget.style.background = "rgba(229, 9, 20, 0.05)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
+                  e.currentTarget.style.color = "var(--text-muted)";
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+                }}
+              >
+                <div
+                  style={{
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "50%",
+                    background: "rgba(255, 255, 255, 0.06)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Plus size={20} />
+                </div>
+                <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Add Actor</span>
+              </div>
+            </div>
           ) : (
+            /* List Form View */
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {cast.map((actor, idx) => (
                 <div
