@@ -848,57 +848,15 @@ export default function AdminMovieEditPage({
           </h2>
 
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>
-                Movie Title <span style={{ color: "var(--primary)" }}>*</span>
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {fetchingBackdrops && (
-                  <span style={{ fontSize: "0.75rem", color: "#60a5fa", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                    <Loader2 size={12} className="animate-spin" /> Auto-fetching 4K backdrops...
-                  </span>
-                )}
-                {!fetchingBackdrops && curatedBackdrops.length > 0 && (
-                  <span style={{ fontSize: "0.75rem", color: "#34d399", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                    <Check size={12} /> {curatedBackdrops.length} 4K backdrops available
-                  </span>
-                )}
-                {title.trim().length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => executeFetchBackdrops(title, true)}
-                    disabled={fetchingBackdrops}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      background: "rgba(59, 130, 246, 0.15)",
-                      border: "1px solid rgba(59, 130, 246, 0.3)",
-                      color: "#93c5fd",
-                      padding: "2px 8px",
-                      borderRadius: "var(--radius-sm)",
-                      fontSize: "0.72rem",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                    title="Auto-fetch and apply the best available 4K background banner"
-                  >
-                    <Sparkles size={11} /> Auto-Fetch 4K Banners
-                  </button>
-                )}
-              </div>
-            </div>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+              Movie Title <span style={{ color: "var(--primary)" }}>*</span>
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
                 setHasManualBannerEdit(false);
-              }}
-              onBlur={() => {
-                if (title.trim().length > 1) {
-                  executeFetchBackdrops(title, true);
-                }
               }}
               placeholder="e.g. Ramayana - Part 1"
               required
