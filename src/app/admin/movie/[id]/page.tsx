@@ -34,6 +34,7 @@ import {
   ArrowUp,
   ArrowDown,
   X,
+  GripVertical,
 } from "lucide-react";
 import { getAdminToken } from "@/lib/adminAuth";
 import { setCachedMovie, getCachedMovies, setCachedMovies } from "@/lib/clientMovieCache";
@@ -95,6 +96,9 @@ export default function AdminMovieEditPage({
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [isCastScrolling, setIsCastScrolling] = useState(false);
   const castScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [draggedCastIndex, setDraggedCastIndex] = useState<number | null>(null);
+  const [dragOverCastIndex, setDragOverCastIndex] = useState<number | null>(null);
+  const isDraggingCastRef = useRef(false);
 
   const handleCastScroll = () => {
     setIsCastScrolling(true);
@@ -533,6 +537,32 @@ export default function AdminMovieEditPage({
     if (modalActor?.index === index) {
       setModalActor(null);
     }
+  };
+
+  const handleDropCast = (targetIdx: number) => {
+    if (draggedCastIndex === null || draggedCastIndex === targetIdx) {
+      setDraggedCastIndex(null);
+      setDragOverCastIndex(null);
+      return;
+    }
+    setCast((prev) => {
+      const updated = [...prev];
+      const [draggedItem] = updated.splice(draggedCastIndex, 1);
+      updated.splice(targetIdx, 0, draggedItem);
+      return updated;
+    });
+    setDraggedCastIndex(null);
+    setDragOverCastIndex(null);
+  };
+
+  const handleMoveCast = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= cast.length || fromIdx === toIdx) return;
+    setCast((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIdx, 1);
+      updated.splice(toIdx, 0, moved);
+      return updated;
+    });
   };
 
   const handleAutoFetchCast = async () => {
@@ -2243,19 +2273,34 @@ export default function AdminMovieEditPage({
               <Users size={18} color="var(--primary)" />
               <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Top Cast Members</h2>
               {cast.length > 0 && (
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    padding: "2px 8px",
-                    borderRadius: "999px",
-                    background: "rgba(229, 9, 20, 0.12)",
-                    color: "var(--primary)",
-                    border: "1px solid rgba(229, 9, 20, 0.25)",
-                    fontWeight: 700,
-                  }}
-                >
-                  {cast.length} {cast.length === 1 ? "Actor" : "Actors"}
-                </span>
+                <>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                      background: "rgba(229, 9, 20, 0.12)",
+                      color: "var(--primary)",
+                      border: "1px solid rgba(229, 9, 20, 0.25)",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {cast.length} {cast.length === 1 ? "Actor" : "Actors"}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "0.74rem",
+                      color: "var(--text-muted)",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                    title="You can drag and drop cards to reorder actors"
+                  >
+                    <GripVertical size={13} />
+                    <span>Drag & drop to reorder</span>
+                  </span>
+                </>
               )}
             </div>
 
@@ -2400,179 +2445,263 @@ export default function AdminMovieEditPage({
                 WebkitOverflowScrolling: "touch",
               }}
             >
-              {cast.map((actor, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleOpenEditModal(idx)}
-                  style={{
-                    flex: "0 0 145px",
-                    width: "145px",
-                    scrollSnapAlign: "start",
-                    position: "relative",
-                    background: "rgba(18, 22, 32, 0.9)",
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
-                    borderRadius: "14px",
-                    padding: "16px 10px 14px",
-                    textAlign: "center",
-                    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.35)",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(229, 9, 20, 0.5)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                  title="Click to edit actor manually"
-                >
-                  {/* Remove Button on top-right */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveCast(idx);
+              {cast.map((actor, idx) => {
+                const isBeingDragged = draggedCastIndex === idx;
+                const isDragTarget = dragOverCastIndex === idx && draggedCastIndex !== idx;
+
+                return (
+                  <div
+                    key={idx}
+                    draggable
+                    onDragStart={(e) => {
+                      isDraggingCastRef.current = true;
+                      setDraggedCastIndex(idx);
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", idx.toString());
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (dragOverCastIndex !== idx) {
+                        setDragOverCastIndex(idx);
+                      }
+                    }}
+                    onDragLeave={(e) => {
+                      if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                      if (dragOverCastIndex === idx) {
+                        setDragOverCastIndex(null);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      handleDropCast(idx);
+                      setTimeout(() => {
+                        isDraggingCastRef.current = false;
+                      }, 60);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedCastIndex(null);
+                      setDragOverCastIndex(null);
+                      setTimeout(() => {
+                        isDraggingCastRef.current = false;
+                      }, 60);
+                    }}
+                    onClick={() => {
+                      if (isDraggingCastRef.current) return;
+                      handleOpenEditModal(idx);
                     }}
                     style={{
-                      position: "absolute",
-                      top: "6px",
-                      right: "6px",
-                      width: "22px",
-                      height: "22px",
-                      borderRadius: "50%",
-                      background: "rgba(239, 68, 68, 0.18)",
-                      border: "1px solid rgba(239, 68, 68, 0.35)",
-                      color: "#f87171",
+                      flex: "0 0 145px",
+                      width: "145px",
+                      scrollSnapAlign: "start",
+                      position: "relative",
+                      background: isDragTarget ? "rgba(229, 9, 20, 0.16)" : "rgba(18, 22, 32, 0.9)",
+                      border: isDragTarget
+                        ? "2px solid var(--primary)"
+                        : isBeingDragged
+                        ? "2px dashed rgba(229, 9, 20, 0.65)"
+                        : "1px solid rgba(255, 255, 255, 0.12)",
+                      borderRadius: "14px",
+                      padding: "16px 10px 14px",
+                      textAlign: "center",
+                      boxShadow: isDragTarget
+                        ? "0 0 22px rgba(229, 9, 20, 0.55)"
+                        : "0 6px 18px rgba(0, 0, 0, 0.35)",
+                      cursor: "grab",
+                      opacity: isBeingDragged ? 0.35 : 1,
+                      transform: isDragTarget ? "scale(1.04)" : isBeingDragged ? "scale(0.96)" : "translateY(0)",
+                      transition: "all 0.2s cubic-bezier(0.2, 0, 0, 1)",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      padding: 0,
-                      zIndex: 2,
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      userSelect: "none",
                     }}
-                    title="Remove Actor"
+                    onMouseEnter={(e) => {
+                      if (!isBeingDragged && !isDragTarget) {
+                        e.currentTarget.style.borderColor = "rgba(229, 9, 20, 0.5)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isBeingDragged && !isDragTarget) {
+                        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }
+                    }}
+                    title="Drag & drop to reorder, or click to edit"
                   >
-                    <Trash2 size={11} />
-                  </button>
-
-                  <div>
-                    {/* Circular Avatar matching 2nd image */}
+                    {/* Drag Grip Handle on top-left */}
                     <div
                       style={{
-                        position: "relative",
-                        width: "72px",
-                        height: "72px",
+                        position: "absolute",
+                        top: "6px",
+                        left: "6px",
+                        width: "22px",
+                        height: "22px",
                         borderRadius: "50%",
-                        overflow: "hidden",
-                        margin: "0 auto 10px",
-                        backgroundColor: "#161922",
-                        border: "2px solid rgba(255, 255, 255, 0.18)",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-                      }}
-                    >
-                      {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
-                        <Image
-                          src={actor.photoUrl}
-                          alt=""
-                          fill
-                          unoptimized
-                          referrerPolicy="no-referrer"
-                          sizes="72px"
-                          style={{ objectFit: "cover" }}
-                          onError={() => {
-                            if (actor.photoUrl) {
-                              setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "var(--text-muted)",
-                            background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
-                          }}
-                        >
-                          <Users size={28} />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Name in bold white (matching 2nd image) */}
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: "0.95rem",
-                        color: "#ffffff",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        wordBreak: "break-word",
-                        lineHeight: 1.25,
-                        marginBottom: "4px",
-                      }}
-                      title={actor.actorName}
-                    >
-                      {actor.actorName || "Actor Name"}
-                    </div>
-
-                    {/* Role in muted text (matching 2nd image) */}
-                    <div
-                      style={{
-                        fontSize: "0.8rem",
+                        background: "rgba(255, 255, 255, 0.08)",
+                        border: "1px solid rgba(255, 255, 255, 0.14)",
                         color: "var(--text-muted)",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        wordBreak: "break-word",
-                        lineHeight: 1.25,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "grab",
+                        zIndex: 2,
                       }}
-                      title={actor.characterName}
+                      title="Drag to rearrange"
                     >
-                      {actor.characterName || "Role / Character"}
+                      <GripVertical size={12} />
                     </div>
-                  </div>
 
-                  {/* Manual Edit Button */}
-                  <div style={{ marginTop: "10px" }}>
+                    {/* Remove Button on top-right */}
                     <button
                       type="button"
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleOpenEditModal(idx);
+                        handleRemoveCast(idx);
                       }}
                       style={{
-                        padding: "3px 10px",
-                        fontSize: "0.72rem",
-                        fontWeight: 600,
-                        background: "rgba(255, 255, 255, 0.08)",
-                        border: "1px solid rgba(255, 255, 255, 0.16)",
-                        borderRadius: "6px",
-                        color: "#e2e8f0",
-                        display: "inline-flex",
+                        position: "absolute",
+                        top: "6px",
+                        right: "6px",
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        background: "rgba(239, 68, 68, 0.18)",
+                        border: "1px solid rgba(239, 68, 68, 0.35)",
+                        color: "#f87171",
+                        display: "flex",
                         alignItems: "center",
-                        gap: "4px",
+                        justifyContent: "center",
                         cursor: "pointer",
+                        padding: 0,
+                        zIndex: 2,
                       }}
-                      title="Click to edit actor manually"
+                      title="Remove Actor"
                     >
-                      <Edit2 size={10} />
-                      <span>Edit Manually</span>
+                      <Trash2 size={11} />
                     </button>
+
+                    <div>
+                      {/* Circular Avatar matching 2nd image */}
+                      <div
+                        style={{
+                          position: "relative",
+                          width: "72px",
+                          height: "72px",
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                          margin: "0 auto 10px",
+                          backgroundColor: "#161922",
+                          border: "2px solid rgba(255, 255, 255, 0.18)",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        {actor.photoUrl && !brokenImages[actor.photoUrl] ? (
+                          <Image
+                            src={actor.photoUrl}
+                            alt=""
+                            fill
+                            unoptimized
+                            referrerPolicy="no-referrer"
+                            sizes="72px"
+                            style={{ objectFit: "cover" }}
+                            draggable={false}
+                            onError={() => {
+                              if (actor.photoUrl) {
+                                setBrokenImages((prev) => ({ ...prev, [actor.photoUrl!]: true }));
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "var(--text-muted)",
+                              background: "linear-gradient(135deg, #1b2030 0%, #10131d 100%)",
+                            }}
+                          >
+                            <Users size={28} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Name in bold white (matching 2nd image) */}
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: "0.95rem",
+                          color: "#ffffff",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          wordBreak: "break-word",
+                          lineHeight: 1.25,
+                          marginBottom: "4px",
+                        }}
+                        title={actor.actorName}
+                      >
+                        {actor.actorName || "Actor Name"}
+                      </div>
+
+                      {/* Role in muted text (matching 2nd image) */}
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "var(--text-muted)",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          wordBreak: "break-word",
+                          lineHeight: 1.25,
+                        }}
+                        title={actor.characterName}
+                      >
+                        {actor.characterName || "Role / Character"}
+                      </div>
+                    </div>
+
+                    {/* Manual Edit Button */}
+                    <div style={{ marginTop: "10px" }}>
+                      <button
+                        type="button"
+                        draggable={false}
+                        onDragStart={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(idx);
+                        }}
+                        style={{
+                          padding: "3px 10px",
+                          fontSize: "0.72rem",
+                          fontWeight: 600,
+                          background: "rgba(255, 255, 255, 0.08)",
+                          border: "1px solid rgba(255, 255, 255, 0.16)",
+                          borderRadius: "6px",
+                          color: "#e2e8f0",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          cursor: "pointer",
+                        }}
+                        title="Click to edit actor manually"
+                      >
+                        <Edit2 size={10} />
+                        <span>Edit Manually</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Add New Actor Card */}
               <div
@@ -2625,58 +2754,118 @@ export default function AdminMovieEditPage({
           ) : (
             /* List Form View */
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {cast.map((actor, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1.5fr auto",
-                    gap: "10px",
-                    alignItems: "center",
-                    padding: "10px",
-                    background: "rgba(255, 255, 255, 0.03)",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Actor Name"
-                    value={actor.actorName}
-                    onChange={(e) => handleUpdateCast(idx, "actorName", e.target.value)}
-                    className="input-field"
-                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
-                  />
+              {cast.map((actor, idx) => {
+                const isBeingDragged = draggedCastIndex === idx;
+                const isDragTarget = dragOverCastIndex === idx && draggedCastIndex !== idx;
 
-                  <input
-                    type="text"
-                    placeholder="Character Role"
-                    value={actor.characterName}
-                    onChange={(e) => handleUpdateCast(idx, "characterName", e.target.value)}
-                    className="input-field"
-                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
-                  />
-
-                  <input
-                    type="url"
-                    placeholder="Photo URL"
-                    value={actor.photoUrl || ""}
-                    onChange={(e) => handleUpdateCast(idx, "photoUrl", e.target.value)}
-                    className="input-field"
-                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCast(idx)}
-                    className="btn-icon"
-                    style={{ width: 34, height: 34, color: "#f87171" }}
-                    title="Remove Actor"
+                return (
+                  <div
+                    key={idx}
+                    draggable
+                    onDragStart={(e) => {
+                      isDraggingCastRef.current = true;
+                      setDraggedCastIndex(idx);
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", idx.toString());
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (dragOverCastIndex !== idx) setDragOverCastIndex(idx);
+                    }}
+                    onDragLeave={(e) => {
+                      if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                      if (dragOverCastIndex === idx) setDragOverCastIndex(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      handleDropCast(idx);
+                      setTimeout(() => {
+                        isDraggingCastRef.current = false;
+                      }, 50);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedCastIndex(null);
+                      setDragOverCastIndex(null);
+                      setTimeout(() => {
+                        isDraggingCastRef.current = false;
+                      }, 50);
+                    }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "auto 1fr 1fr 1.5fr auto",
+                      gap: "10px",
+                      alignItems: "center",
+                      padding: "10px",
+                      background: isDragTarget ? "rgba(229, 9, 20, 0.14)" : "rgba(255, 255, 255, 0.03)",
+                      borderRadius: "var(--radius-sm)",
+                      border: isDragTarget ? "1px solid var(--primary)" : isBeingDragged ? "1px dashed rgba(229, 9, 20, 0.6)" : "1px solid var(--border-subtle)",
+                      opacity: isBeingDragged ? 0.35 : 1,
+                      cursor: "grab",
+                      transition: "all 0.15s ease",
+                    }}
                   >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "var(--text-muted)",
+                        cursor: "grab",
+                        padding: "4px",
+                      }}
+                      title="Drag to rearrange"
+                    >
+                      <GripVertical size={16} />
+                    </div>
+
+                    <input
+                      type="text"
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
+                      placeholder="Actor Name"
+                      value={actor.actorName}
+                      onChange={(e) => handleUpdateCast(idx, "actorName", e.target.value)}
+                      className="input-field"
+                      style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                    />
+
+                    <input
+                      type="text"
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
+                      placeholder="Character Role"
+                      value={actor.characterName}
+                      onChange={(e) => handleUpdateCast(idx, "characterName", e.target.value)}
+                      className="input-field"
+                      style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                    />
+
+                    <input
+                      type="url"
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
+                      placeholder="Photo URL"
+                      value={actor.photoUrl || ""}
+                      onChange={(e) => handleUpdateCast(idx, "photoUrl", e.target.value)}
+                      className="input-field"
+                      style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                    />
+
+                    <button
+                      type="button"
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
+                      onClick={() => handleRemoveCast(idx)}
+                      className="btn-icon"
+                      style={{ width: 34, height: 34, color: "#f87171" }}
+                      title="Remove Actor"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -3014,29 +3203,84 @@ export default function AdminMovieEditPage({
             </div>
 
             {/* Modal Actions */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "22px" }}>
-              {modalActor.index >= 0 ? (
-                <button
-                  type="button"
-                  onClick={handleDeleteFromModal}
-                  style={{
-                    padding: "8px 14px",
-                    background: "rgba(239, 68, 68, 0.14)",
-                    border: "1px solid rgba(239, 68, 68, 0.35)",
-                    borderRadius: "8px",
-                    color: "#f87171",
-                    fontSize: "0.82rem",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  <Trash2 size={14} />
-                  <span>Remove</span>
-                </button>
-              ) : <div />}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "22px", flexWrap: "wrap", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {modalActor.index >= 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleDeleteFromModal}
+                      style={{
+                        padding: "8px 12px",
+                        background: "rgba(239, 68, 68, 0.14)",
+                        border: "1px solid rgba(239, 68, 68, 0.35)",
+                        borderRadius: "8px",
+                        color: "#f87171",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                      title="Remove Actor"
+                    >
+                      <Trash2 size={14} />
+                      <span>Remove</span>
+                    </button>
+
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "rgba(255, 255, 255, 0.05)", padding: "2px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                      <button
+                        type="button"
+                        disabled={modalActor.index <= 0}
+                        onClick={() => {
+                          const cur = modalActor.index;
+                          handleMoveCast(cur, cur - 1);
+                          setModalActor({ ...modalActor, index: cur - 1 });
+                        }}
+                        style={{
+                          padding: "6px 8px",
+                          background: "transparent",
+                          border: "none",
+                          color: modalActor.index <= 0 ? "var(--text-subtle)" : "var(--text-secondary)",
+                          cursor: modalActor.index <= 0 ? "not-allowed" : "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          borderRadius: "6px",
+                        }}
+                        title="Move earlier in order"
+                      >
+                        <ArrowLeft size={14} />
+                      </button>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", padding: "0 4px" }}>
+                        #{modalActor.index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={modalActor.index >= cast.length - 1}
+                        onClick={() => {
+                          const cur = modalActor.index;
+                          handleMoveCast(cur, cur + 1);
+                          setModalActor({ ...modalActor, index: cur + 1 });
+                        }}
+                        style={{
+                          padding: "6px 8px",
+                          background: "transparent",
+                          border: "none",
+                          color: modalActor.index >= cast.length - 1 ? "var(--text-subtle)" : "var(--text-secondary)",
+                          cursor: modalActor.index >= cast.length - 1 ? "not-allowed" : "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          borderRadius: "6px",
+                        }}
+                        title="Move later in order"
+                      >
+                        <ArrowLeft size={14} style={{ transform: "rotate(180deg)" }} />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <button
