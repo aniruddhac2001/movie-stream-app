@@ -39,23 +39,18 @@ export function FilterBar({
       >
         {/* Status Segmented Buttons */}
         <div
+          className="filter-status-group"
           style={{
             display: "inline-flex",
             background: "rgba(255, 255, 255, 0.04)",
             border: "1px solid var(--border-subtle)",
             borderRadius: "var(--radius-full)",
-            padding: "4px",
-            gap: "4px",
           }}
         >
           <button
             onClick={() => onSelectStatus("all")}
-            className="btn-ghost"
+            className="btn-ghost filter-status-btn"
             style={{
-              padding: "6px 14px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.82rem",
-              fontWeight: 600,
               background: statusFilter === "all" ? "var(--primary)" : "transparent",
               color: statusFilter === "all" ? "#ffffff" : "var(--text-secondary)",
               boxShadow: statusFilter === "all" ? "0 2px 10px rgba(229, 9, 20, 0.4)" : "none",
@@ -66,12 +61,8 @@ export function FilterBar({
 
           <button
             onClick={() => onSelectStatus("available_now")}
-            className="btn-ghost"
+            className="btn-ghost filter-status-btn"
             style={{
-              padding: "6px 14px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.82rem",
-              fontWeight: 600,
               background: statusFilter === "available_now" ? "var(--primary)" : "transparent",
               color: statusFilter === "available_now" ? "#ffffff" : "var(--text-secondary)",
               boxShadow: statusFilter === "available_now" ? "0 2px 10px rgba(229, 9, 20, 0.4)" : "none",
@@ -81,15 +72,10 @@ export function FilterBar({
             <span>Full Movies</span>
           </button>
 
-
           <button
             onClick={() => onSelectStatus("upcoming")}
-            className="btn-ghost"
+            className="btn-ghost filter-status-btn"
             style={{
-              padding: "6px 14px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.82rem",
-              fontWeight: 600,
               background: statusFilter === "upcoming" ? "var(--primary)" : "transparent",
               color: statusFilter === "upcoming" ? "#ffffff" : "var(--text-secondary)",
               boxShadow: statusFilter === "upcoming" ? "0 2px 10px rgba(229, 9, 20, 0.4)" : "none",
