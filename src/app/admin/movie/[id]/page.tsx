@@ -795,20 +795,22 @@ export default function AdminMovieEditPage({
   return (
     <div className="container" style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "880px", position: "relative", zIndex: 1 }}>
       {/* Top Header */}
-      <div style={{ marginBottom: "28px" }}>
-        <Link
-          href="/admin"
-          className="btn-ghost"
-          style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Admin Dashboard</span>
-        </Link>
+      <div style={{ marginBottom: "32px", textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", marginBottom: "16px" }}>
+          <Link
+            href="/admin"
+            className="btn-ghost"
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Admin Dashboard</span>
+          </Link>
+        </div>
 
-        <h1 style={{ fontSize: "2rem", fontWeight: 800 }}>
+        <h1 style={{ fontSize: "2.1rem", fontWeight: 800, textAlign: "center", letterSpacing: "-0.02em" }}>
           {isNew ? "Add New Movie to CineNova" : `Edit Movie: ${title || "Untitled"}`}
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginTop: "4px" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: "6px", textAlign: "center" }}>
           Configure movie information, poster & backdrop media, trailer streams, and cast lists.
         </p>
       </div>
