@@ -46,9 +46,9 @@ export default function RootLayout({
         <Preloader />
         <VideoProvider>
           <WatchlistProvider>
-            {/* Ambient Background Spotlights */}
-            <div className="cinematic-glow" />
-            <div className="cinematic-glow-gold" />
+            {/* Ambient Background Spotlights: Dual Gaussian Blur (Sky Blue Left & Red Right) */}
+            <div className="cinematic-glow-left" />
+            <div className="cinematic-glow-right" />
 
             {/* Secret Shortcut Listener */}
             <SecretAdminListener />
@@ -59,7 +59,7 @@ export default function RootLayout({
             </Suspense>
 
             {/* Main Content Area - Full height so hero banners extend behind transparent fixed navbar */}
-            <main style={{ minHeight: "100vh" }}>
+            <main style={{ minHeight: "100vh", position: "relative", zIndex: 1 }}>
               {children}
             </main>
 

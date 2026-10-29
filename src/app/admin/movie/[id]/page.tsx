@@ -793,7 +793,7 @@ export default function AdminMovieEditPage({
   }
 
   return (
-    <div className="container" style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "880px" }}>
+    <div className="container" style={{ paddingTop: "100px", paddingBottom: "80px", maxWidth: "880px", position: "relative", zIndex: 1 }}>
       {/* Top Header */}
       <div style={{ marginBottom: "28px" }}>
         <Link
