@@ -831,17 +831,7 @@ export default function AdminMovieEditPage({
 
       <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
         {/* Section 1: Basic Information */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
-        >
+        <div className="admin-glass-section">
           <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px" }}>
             <Film size={18} color="var(--primary)" />
             <span>General Information</span>
@@ -1021,17 +1011,7 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Section 2: Poster & Banner Media */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
-        >
+        <div className="admin-glass-section">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
             <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
               <ImageIcon size={18} color="var(--primary)" />
@@ -1398,17 +1378,7 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Section 3: Movie Screenshots & Scene Stills */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
-        >
+        <div className="admin-glass-section">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
             <h2 style={{ fontSize: "1.1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "8px", margin: 0 }}>
               <Camera size={18} color="var(--primary)" />
@@ -1594,15 +1564,9 @@ export default function AdminMovieEditPage({
         {/* Section 4: Google Drive & Full Movie Streaming */}
         <div
           id="streaming-section"
+          className="admin-glass-section"
           style={{
-            background: "rgba(20, 23, 34, 0.75)",
-            border: `1px solid ${isUpcoming ? "rgba(239, 68, 68, 0.25)" : "rgba(59, 130, 246, 0.28)"}`,
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
+            border: `1px solid ${isUpcoming ? "rgba(239, 68, 68, 0.35)" : "rgba(59, 130, 246, 0.35)"}`,
           }}
         >
           {/* Header */}
@@ -1951,17 +1915,7 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Section 5: Official Trailers & Teasers (Multiple Trailers) */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
+        <div className="admin-glass-section">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Film size={20} color="var(--primary)" />
@@ -2215,17 +2169,7 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Section 6: Top Cast Members */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
-        >
+        <div className="admin-glass-section">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Users size={18} color="var(--primary)" />
@@ -2829,17 +2773,7 @@ export default function AdminMovieEditPage({
         </div>
 
         {/* Section 7: Crew & Production Members */}
-        <div
-          style={{
-            background: "rgba(20, 23, 34, 0.6)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "18px",
-          }}
-        >
+        <div className="admin-glass-section">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Clapperboard size={18} color="var(--primary)" />

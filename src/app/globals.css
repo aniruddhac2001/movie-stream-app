@@ -135,17 +135,18 @@ button, input, textarea, select {
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Atmospheric Glow Backgrounds: Dual Gaussian Blur (Sky Blue Left & Red Right) */
+/* Atmospheric Glow Backgrounds: Dual Gaussian Blur (Sky Blue Left Down & Red Right Top) */
 .cinematic-glow-left {
   position: fixed;
-  top: -12%;
+  top: auto;
+  bottom: -15%;
   left: -8%;
-  width: 55vw;
-  max-width: 800px;
-  height: 70vh;
-  max-height: 800px;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.28) 0%, rgba(56, 189, 248, 0.14) 40%, rgba(7, 8, 12, 0) 70%);
-  filter: blur(95px);
+  width: 70vw;
+  max-width: 950px;
+  height: 75vh;
+  max-height: 950px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.35) 0%, rgba(56, 189, 248, 0.2) 35%, rgba(14, 165, 233, 0.08) 60%, rgba(7, 8, 12, 0) 75%);
+  filter: blur(110px);
   pointer-events: none;
   z-index: 0;
   border-radius: 50%;
@@ -154,14 +155,15 @@ button, input, textarea, select {
 
 .cinematic-glow-right {
   position: fixed;
-  top: -12%;
+  top: -15%;
+  bottom: auto;
   right: -8%;
-  width: 55vw;
-  max-width: 800px;
-  height: 70vh;
-  max-height: 800px;
-  background: radial-gradient(circle, rgba(229, 9, 20, 0.28) 0%, rgba(239, 68, 68, 0.14) 40%, rgba(7, 8, 12, 0) 70%);
-  filter: blur(95px);
+  width: 70vw;
+  max-width: 950px;
+  height: 75vh;
+  max-height: 950px;
+  background: radial-gradient(circle, rgba(229, 9, 20, 0.35) 0%, rgba(239, 68, 68, 0.2) 35%, rgba(229, 9, 20, 0.08) 60%, rgba(7, 8, 12, 0) 75%);
+  filter: blur(110px);
   pointer-events: none;
   z-index: 0;
   border-radius: 50%;
@@ -178,22 +180,43 @@ button, input, textarea, select {
 
 @media (max-width: 768px) {
   .cinematic-glow-left {
-    top: -5%;
-    left: -20%;
-    width: 75vw;
-    height: 50vh;
-    filter: blur(75px);
-    opacity: 0.85;
+    bottom: -10%;
+    left: -25%;
+    width: 88vw;
+    height: 60vh;
+    filter: blur(85px);
+    opacity: 0.9;
   }
 
   .cinematic-glow-right {
-    top: -5%;
-    right: -20%;
-    width: 75vw;
-    height: 50vh;
-    filter: blur(75px);
-    opacity: 0.85;
+    top: -10%;
+    right: -25%;
+    width: 88vw;
+    height: 60vh;
+    filter: blur(85px);
+    opacity: 0.9;
   }
+}
+
+/* Premium Glassmorphic Form Section */
+.admin-glass-section {
+  background: rgba(14, 18, 28, 0.45) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 24px;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.admin-glass-section:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
 /* Core Buttons */
@@ -421,11 +444,13 @@ button, input, textarea, select {
   border-radius: 6px;
 }
 
-/* Input Styles */
+/* Input Styles: Glassmorphic Inputs */
 .input-field {
   width: 100%;
-  background: rgba(20, 23, 34, 0.85);
-  border: 1px solid var(--border-subtle);
+  background: rgba(10, 14, 23, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 0.92rem;
@@ -435,8 +460,9 @@ button, input, textarea, select {
 }
 
 .input-field:focus {
+  background: rgba(12, 17, 28, 0.75);
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.22), 0 0 16px rgba(229, 9, 20, 0.15);
 }
 
 .input-field::placeholder {
