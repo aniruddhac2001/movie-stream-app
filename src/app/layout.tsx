@@ -46,9 +46,9 @@ export default function RootLayout({
         <Preloader />
         <VideoProvider>
           <WatchlistProvider>
-            {/* Ambient Background Spotlights: Dual Gaussian Blur (Sky Blue Left & Red Right) */}
-            <div className="cinematic-glow-left" />
-            <div className="cinematic-glow-right" />
+            {/* Ambient Background Spotlights */}
+            <div className="cinematic-glow" />
+            <div className="cinematic-glow-gold" />
 
             {/* Secret Shortcut Listener */}
             <SecretAdminListener />
